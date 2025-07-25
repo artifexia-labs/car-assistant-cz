@@ -1,0 +1,14 @@
+{
+  "name": "car-assistant-cz",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "supabase start",
+    "serve:functions": "supabase functions serve --no-verify-jwt",
+    "stop": "supabase stop"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
