@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Asistent pro výběr auta</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #45a049;
+            --background-color: #f0f2f5;
+            --container-bg: #ffffff;
+            --text-color: #1c1e21;
+            --text-light: #606770;
+            --border-color: #dddfe2;
+            --error-bg: #ffebee;
+            --error-text: #c62828;
+            --success-color: #2e7d32;
+            --warning-color: #ff8f00;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+        }
+        h1 {
+            text-align: center; font-size: 2rem; font-weight: 700;
+            color: #0d1b2a; margin-bottom: 10px;
+        }
+        p.subtitle {
+            text-align: center; font-size: 1.1rem; color: var(--text-light);
+            margin-bottom: 30px;
+        }
+        textarea {
+            width: 100%; min-height: 100px; padding: 15px; font-size: 1rem;
+            border-radius: 8px; border: 1px solid var(--border-color);
+            box-sizing: border-box; resize: vertical; margin-bottom: 20px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        textarea:focus {
+            outline: none; border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        button {
+            background-color: var(--primary-color); color: white; padding: 15px 30px;
+            border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 500;
+            cursor: pointer; transition: background-color 0.3s, transform 0.1s;
+            width: 100%; display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        button:disabled {
+            background-color: #a5d6a7; cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+        }
+        .loader-container { padding: 30px 0; display: none; text-align: center; }
+        .loader {
+            border: 4px solid #f3f3f3; border-top: 4px solid var(--primary-color);
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 0 auto 10px auto;
+        }
+        #results { margin-top: 30px; }
+        .error-message {
+            background-color: var(--error-bg); color: var(--error-text); font-weight: 500;
+            padding: 15px; border-radius: 8px; border-left: 5px solid var(--error-text);
+        }
+        .summary-message {
+            background-color: #e3f2fd; color: #0d47a1; padding: 15px; border-radius: 8px;
+            text-align: center; font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        .car-card {
+            background: #fff; border: 1px solid #e9ebee; border-radius: 12px;
+            margin-bottom: 25px; padding: 20px; transition: box-shadow 0.3s;
+            overflow: hidden; /* Důležité pro správné zobrazení obrázku */
+        }
+        .car-card:hover { box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); }
+        .car-image {
+            width: calc(100% + 40px); /* Kompenzace paddingu rodiče */
+            height: 300px;
+            object-fit: cover;
+            margin: -20px -20px 20px -20px; /* Přilepení k okrajům */
+        }
+        .car-content-wrapper {
+             padding: 0;
+        }
+        .car-title {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin: 0 0 15px 0; border-bottom: 1px solid #f0f2f5; padding-bottom: 15px;
+        }
+        .car-title h3 { margin: 0; font-size: 1.4rem; }
+        .car-title a {
+            text-decoration: none; color: #0d1b2a;
+        }
+        .car-price {
+            font-size: 1.5rem; font-weight: 700; color: var(--primary-color); white-space: nowrap;
+            margin-left: 15px;
+        }
+        .car-summary {
+            font-style: italic; color: var(--text-light); margin-bottom: 20px;
+            padding: 10px; background-color: #f9f9f9; border-radius: 6px;
+        }
+        .details-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        }
+        .details-section h4 { margin: 0 0 10px 0; font-size: 1.1rem; }
+        .details-section ul { list-style: none; padding: 0; margin: 0; }
+        .details-section li { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; }
+        .details-section li::before {
+            content: '✓'; color: var(--success-color); font-weight: bold;
+        }
+        .details-section.cons li::before {
+            content: '⚠️'; color: var(--warning-color);
+        }
+        .details-section.questions li::before {
+            content: '❓'; color: #1e88e5;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @media (max-width: 600px) {
+            .details-grid { grid-template-columns: 1fr; }
+            .car-title { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Najdu ti nejlepší ojeté auto.</h1>
+        <p class="subtitle">Popiš mi, co hledáš, a můj AI asistent prohledá Sauto.cz a vybere nejlepší nabídky.</p>
+        
+        <form id="car-search-form">
+            <textarea id="user-query" placeholder='Např. "Jsem student, bydlím v Praze a chci spolehlivé auto do 150 000 Kč s nízkou spotřebou."'></textarea>
+            <button type="submit" id="submit-button">Analyzovat nabídky</button>
+        </form>
+
+        <div class="loader-container" id="loader-container">
+            <div class="loader"></div>
+            <p id="loader-text">Analyzuji váš požadavek...</p>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+    const { createClient } = supabase;
+    const supabaseClient = createClient('https://zmwnzxypbhjpqwlgyvxi.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inptd256eHlwYmhqcHF3bGd5dnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxNzY2ODAsImV4cCI6MjA2ODc1MjY4MH0.uQGr43bqoPGvfbnnU14sDGfHQLGqcSt-UP4rIJQCU80');
+    
+    const form = document.getElementById('car-search-form');
+    const submitButton = document.getElementById('submit-button');
+    const loaderContainer = document.getElementById('loader-container');
+    const loaderText = document.getElementById('loader-text');
+    const resultsDiv = document.getElementById('results');
+    const queryTextarea = document.getElementById('user-query');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const userQuery = queryTextarea.value.trim();
+        if (!userQuery) {
+            alert('Prosím, zadejte svůj požadavek.');
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> Pracuji...`;
+        loaderContainer.style.display = 'block';
+        resultsDiv.innerHTML = ''; 
+
+        try {
+            const { data, error } = await supabaseClient.functions.invoke('analyze-request-v2', {
+                body: { userQuery },
+            });
+
+            if (error) {
+                const errorMessage = data?.error || error.message;
+                throw new Error(errorMessage);
+            }
+
+            if (!data) {
+                throw new Error("Odpověď ze serveru je neplatná.");
+            }
+            
+            displayResults(data);
+
+        } catch (err) {
+            resultsDiv.innerHTML = `<div class="error-message">Vyskytla se chyba: ${err.message}</div>`;
+        } finally {
+            loaderContainer.style.display = 'none';
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Analyzovat nabídky';
+        }
+    });
+
+    function displayResults(data) {
+        resultsDiv.innerHTML = '';
+
+        if (data.summary_message) {
+            const summaryEl = document.createElement('div');
+            summaryEl.className = 'summary-message';
+            summaryEl.textContent = data.summary_message;
+            resultsDiv.appendChild(summaryEl);
+        }
+        
+        if (!data.inspected_cars || data.inspected_cars.length === 0) {
+            if (!data.summary_message) {
+                resultsDiv.innerHTML = '<div class="summary-message">Pro váš dotaz nebyly nalezeny žádné vhodné inzeráty k doporučení.</div>';
+            }
+            return;
+        }
+        
+        data.inspected_cars.forEach(car => {
+            const card = document.createElement('div');
+            card.className = 'car-card';
+
+            const pros_html = car.pros_cz.map(pro => `<li>${pro}</li>`).join('');
+            const cons_html = car.cons_cz.map(con => `<li>${con}</li>`).join('');
+            const questions_html = car.questions_for_seller_cz.map(q => `<li>${q}</li>`).join('');
+            
+            const image_html = car.image_url 
+                ? `<img src="${car.image_url}" alt="${car.title}" class="car-image">`
+                : '';
+
+            card.innerHTML = `
+                ${image_html}
+                <div class="car-content-wrapper">
+                    <div class="car-title">
+                        <h3><a href="${car.url}" target="_blank" rel="noopener noreferrer">${car.title}</a></h3>
+                        <div class="car-price">${car.price}</div>
+                    </div>
+                    <p class="car-summary">${car.summary_cz}</p>
+                    <div class="details-grid">
+                        <div class="details-section pros">
+                            <h4>Klady</h4>
+                            <ul>${pros_html}</ul>
+                        </div>
+                        <div class="details-section cons">
+                            <h4>Rizika a zápory</h4>
+                            <ul>${cons_html}</ul>
+                        </div>
+                    </div>
+                    <div class="details-section questions" style="margin-top: 20px;">
+                        <h4>Doporučené otázky pro prodejce</h4>
+                        <ul>${questions_html}</ul>
+                    </div>
+                </div>
+            `;
+            resultsDiv.appendChild(card);
+        });
+    }
+    </script>
+
+</body>
+</html>
