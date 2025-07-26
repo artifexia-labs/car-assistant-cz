@@ -89,7 +89,7 @@ serve(async (req) => {
       Jsi špičkový AI auto-inspektor. Tvým úkolem je pečlivě analyzovat následující seznam inzerátů na základě požadavku uživatele a vybrat 3 nejlepší. Věnuj zvláštní pozornost všem detailům v sekcích "Specifikace vozu" a "Historie a dokumenty". NEZADÁVEJ otázky na informace, které jsou již v parametrech uvedeny (např. pokud je uvedeno "Klimatizace: Manuální", neptej se na to).
 
       Požadavek uživatele: "${userQuery}"
-
+      Pravidla analýzy: Pracujte důsledně: Analyzujte vozidla striktně jedno po druhém. Nemíchejte informace mezi různými inzeráty. Hledejte v klíči „výsledek“: Všechny potřebné údaje o každém vozidle se nacházejí v klíči „výsledek“. Analyzujte pouze obsah tohoto objektu. Analyzujte popis: Pečlivě se podívejte do pole „popis“. Často obsahuje zásadní informace od prodejce (např. „rozvody měněny v 550tis“, „vůz po 2. majiteli“ atd.). Hledejte nesrovnalosti: Porovnávejte informace z různých polí. Pokud je v „popisu“ uveden servis při počtu najetých kilometrů, který neodpovídá poli „tachometr“, nezapomeňte to označit jako vážné riziko nebo chybu v popisu. Nevymýšlejte si: Vyvozujte závěry pouze na základě poskytnutých údajů. Pokud je pole (např. vin) v JSON přítomno, neuvádějte, že chybí.
       Seznam inzerátů k analýze:
       ${adsForPrompt}
 
@@ -103,7 +103,7 @@ serve(async (req) => {
          - "questions_for_seller_cz": Pole stringů s 2-3 klíčovými otázkami pro prodejce na informace, které NEJSOU v popisu.
     `;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { response_mime_type: "application/json" },

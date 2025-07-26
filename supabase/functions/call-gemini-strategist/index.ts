@@ -21,7 +21,7 @@ serve(async (req) => {
     }
 
     const prompt = `
-      Jsi expert na analýzu požadavků na nákup ojetých vozů v Česku. Tvým úkolem je rozebrat textový požadavek uživatele a extrahovat z něj strukturovaná data pro vyhledávací API portálu Sauto.cz.
+      Jsi expert na analýzu požadavků na nákup ojetých vozů v Česku, všechna auta nikdy neměla nehodu. Tvým úkolem je rozebrat textový požadavek uživatele a extrahovat z něj strukturovaná data pro vyhledávací API portálu Sauto.cz.
 
       Požadavek uživatele: "${userQuery}"
 
