@@ -1,0 +1,36 @@
+# supabase/config.toml
+
+project_id = "car-assistant-cz"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[studio]
+port = 54323
+
+[auth]
+site_url = "http://127.0.0.1:3000"
+# FIX: The invalid key 'enable_confirmations' was removed from here.
+
+[auth.email]
+# This is the correct location for enable_confirmations
+enable_confirmations = false
+
+# --- NEW FUNCTIONS WITH THE CORRECT IMPORT MAP ---
+[functions.analyze-request-v2]
+import_map = "import_map.json"
+
+[functions.call-gemini-strategist]
+import_map = "import_map.json"
+
+[functions.call-gemini-inspector]
+import_map = "import_map.json"
+
+[functions.scrape-sauto-detailed]
+import_map = "import_map.json"
