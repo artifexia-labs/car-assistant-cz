@@ -38,15 +38,15 @@ serve(async (req) => {
       throw new Error("Tělo požadavku musí obsahovat 'models' a 'filters'.");
     }
     
-    // Шаг 1: Получаем Cookies
+    // Krok 1: Získání Cookies
     const handshakeResponse = await fetch('https://www.sauto.cz', { headers: BROWSER_HEADERS });
     const cookiesRaw = handshakeResponse.headers.get("set-cookie")?.split(', ');
     const cookies = cookiesRaw?.map(c => c.split(';')[0]).join('; ') || '';
-    if (!cookies) throw new Error('Не удалось получить сессионные куки.');
+    if (!cookies) throw new Error('Nepodařilo se získat session cookies.');
     const headersWithCookie = { ...BROWSER_HEADERS, 'Cookie': cookies };
 
-    // Шаг 2: Быстрый поиск
-    console.log(`[SCRAPER] Запускаю быстрый поиск для ${carModels.length} моделей...`);
+    // Krok 2: Rychlé vyhledávání
+    console.log(`[SCRAPER] Spouštím rychlé vyhledávání pro ${carModels.length} modelů...`);
     let summaryAds = [];
     for (const model of carModels) {
         let hasMorePages = true;
@@ -55,7 +55,7 @@ serve(async (req) => {
           const searchUrl = buildSautoUrl(model, filters, offset);
           const apiResponse = await fetch(searchUrl, { headers: headersWithCookie });
           if (!apiResponse.ok) {
-            console.error(`[SCRAPER] Ошибка API поиска для ${model.model}. Status: ${apiResponse.status}`);
+            console.error(`[SCRAPER] Chyba API vyhledávání pro ${model.model}. Status: ${apiResponse.status}`);
             hasMorePages = false;
             continue;
           }
@@ -82,27 +82,28 @@ serve(async (req) => {
         return new Response(JSON.stringify([]), { headers: { ...corsHeaders, "Content-Type": "application/json" }});
     }
 
-    // Шаг 3: Детальный сбор для 50 лучших
-    console.log(`[SCRAPER] Начинаю детальный сбор для ${top50Ads.length} лучших...`);
-    const detailPromises = top50Ads.map(ad =>
-      fetch(`https://www.sauto.cz/api/v1/items/${ad.id}`, { headers: headersWithCookie })
-        .then(res => res.ok ? res.json() : null)
-        .then(data => data?.result || null)
-    );
-    const carListings = (await Promise.all(detailPromises)).filter(Boolean);
-
-    // --- 🔥 НОВЫЙ ЛОГ ДЛЯ ДИАГНОСТИКИ 🔥 ---
-    console.log('--- [DIAGNOSTIC LOG] НАЧАЛО ПОЛНОГО JSON ПЕРВОГО ОБЪЯВЛЕНИЯ ---');
-    if (carListings && carListings.length > 0) {
-      // Выводим в лог самый первый детальный объект, который мы получили
-      console.log(JSON.stringify(carListings[0], null, 2));
-    } else {
-      console.log('[DIAGNOSTIC LOG] Детальные объявления не найдены.');
+    // Krok 3: Postupné načítání detailů
+    console.log(`[SCRAPER] Spouštím detailní sběr pro ${top50Ads.length} nejlepších...`);
+    const carListings = [];
+    for (const ad of top50Ads) {
+      try {
+        const detailResponse = await fetch(`https://www.sauto.cz/api/v1/items/${ad.id}`, { headers: headersWithCookie });
+        if (detailResponse.ok) {
+          const detailData = await detailResponse.json();
+          // --- 🔥 ZMĚNA ZDE: Ukládáme pouze objekt 'result' 🔥 ---
+          if (detailData.result) {
+            carListings.push(detailData.result);
+          }
+        } else {
+          console.error(`[SCRAPER] Chyba při získávání detailů pro inzerát ${ad.id}. Status: ${detailResponse.status}`);
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (e) {
+        console.error(`[SCRAPER] Kritická chyba při získávání detailů pro inzerát ${ad.id}:`, e);
+      }
     }
-    console.log('--- [DIAGNOSTIC LOG] КОНЕЦ ПОЛНОГО JSON ---');
-    // --- КОНЕЦ ЛОГА ---
-
-    console.log(`[SCRAPER] Успешно получено ${carListings.length} детальных объявлений.`);
+    
+    console.log(`[SCRAPER] Úspěšně získáno ${carListings.length} detailních inzerátů.`);
 
     return new Response(JSON.stringify(carListings), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
