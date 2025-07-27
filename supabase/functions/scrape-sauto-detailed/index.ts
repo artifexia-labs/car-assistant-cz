@@ -76,16 +76,16 @@ serve(async (req) => {
 
     const uniqueAds = Array.from(new Map(summaryAds.map(ad => [ad.id, ad])).values());
     uniqueAds.sort((a, b) => new Date(b.sorting_date).getTime() - new Date(a.sorting_date).getTime());
-    const top50Ads = uniqueAds.slice(0, 50);
+    const top20Ads = uniqueAds.slice(0, 20);
 
-    if (top50Ads.length === 0) {
+    if (top20Ads.length === 0) {
         return new Response(JSON.stringify([]), { headers: { ...corsHeaders, "Content-Type": "application/json" }});
     }
 
     // Krok 3: Postupné načítání detailů
-    console.log(`[SCRAPER] Spouštím detailní sběr pro ${top50Ads.length} nejlepších...`);
+    console.log(`[SCRAPER] Spouštím detailní sběr pro ${top20Ads.length} nejlepších...`);
     const carListings = [];
-    for (const ad of top50Ads) {
+    for (const ad of top20Ads) {
       try {
         const detailResponse = await fetch(`https://www.sauto.cz/api/v1/items/${ad.id}`, { headers: headersWithCookie });
         if (detailResponse.ok) {

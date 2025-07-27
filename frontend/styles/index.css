@@ -1,0 +1,375 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+:root {
+    --primary-color: #007aff; 
+    --primary-dark: #005ecb;
+    --background-color: #f0f2f5;
+    --container-bg: #ffffff;
+    --text-color: #1d1d1f;
+    --text-light: #6e6e73;
+    --border-color: #d1d1d6;
+    --error-bg: #ffebee;
+    --error-text: #c62828;
+    --success-color: #34c759;
+    --warning-color: #ff9500;
+}
+
+body {
+    font-family: 'Inter', sans-serif; 
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--container-bg);
+    padding: 40px;
+    border-radius: 18px; 
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #000;
+    margin-bottom: 5px;
+}
+
+h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+p.subtitle {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+/* Styly pro taby */
+.tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 30px;
+}
+
+.tab-button {
+    padding: 15px 25px;
+    cursor: pointer;
+    border: none;
+    background-color: transparent;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-light);
+    position: relative;
+    transition: color 0.3s;
+}
+
+.tab-button.active {
+    color: var(--primary-color);
+}
+
+.tab-button::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--primary-color);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.tab-button.active::after {
+    transform: scaleX(1);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+textarea, input[type="url"] {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-sizing: border-box;
+    resize: vertical;
+    margin-bottom: 20px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="url"] {
+    min-height: auto;
+}
+
+textarea:focus, input[type="url"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.2);
+}
+
+button[type="submit"] {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 16px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+button[type="submit"]:disabled {
+    background-color: #a7c7e7;
+    cursor: not-allowed;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+
+.loader-container {
+    padding: 30px 0;
+    display: none;
+    text-align: center;
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px auto;
+}
+
+#results, #ad-results {
+    margin-top: 30px;
+}
+
+.error-message {
+    background-color: var(--error-bg);
+    color: var(--error-text);
+    font-weight: 500;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 5px solid var(--error-text);
+}
+
+.summary-message {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.car-card {
+    background: #fff;
+    border: 1px solid #e9ebee;
+    border-radius: 16px;
+    margin-bottom: 25px;
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Стили для галереи */
+.car-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 5px;
+    width: 100%;
+}
+
+.car-gallery-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.car-content-wrapper {
+    padding: 25px;
+}
+
+.car-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.car-title h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.car-title a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.3s;
+}
+.car-title a:hover {
+    color: var(--primary-color);
+}
+
+.car-price {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    white-space: nowrap;
+    margin-left: 20px;
+}
+
+.car-summary, .car-description {
+    font-style: italic;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+.car-description {
+    font-style: normal;
+}
+
+
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+.details-grid-full {
+     display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.details-section h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.details-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.details-section li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+}
+
+.details-section li::before {
+    font-size: 1.2rem;
+    margin-top: -2px;
+}
+.details-section.pros li::before {
+    content: '✅';
+    color: var(--success-color);
+}
+.details-section.cons li::before {
+    content: '⚠️';
+    color: var(--warning-color);
+}
+.details-section.questions li::before {
+    content: '❓';
+    color: #1e88e5;
+}
+
+.equipment-list {
+    columns: 2;
+    -webkit-columns: 2;
+    -moz-columns: 2;
+    list-style-type: '✓';
+    padding-left: 20px !important;
+}
+
+.equipment-list li {
+    padding-left: 8px;
+    margin-bottom: 8px;
+}
+
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+    .details-grid, .details-grid-full {
+        grid-template-columns: 1fr;
+    }
+    .car-title {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .car-price {
+        margin-left: 0;
+    }
+    .tabs {
+        flex-direction: column;
+    }
+    .tab-button {
+        text-align: center;
+        border-bottom: 1px solid #eee;
+    }
+    .tab-button:last-child {
+        border-bottom: none;
+    }
+    .equipment-list {
+        columns: 1;
+        -webkit-columns: 1;
+        -moz-columns: 1;
+    }
+}
