@@ -1,5 +1,5 @@
 // /supabase/functions/get-ad-details/index.ts
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "std/http";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,18 +12,9 @@ const BROWSER_HEADERS = {
     'Referer': 'https://www.sauto.cz/',
 };
 
-function getAdIdFromUrl(url: string): string {
-  try {
-    const path = new URL(url).pathname;
-    const parts = path.split('/');
-    const adId = parts.pop() || parts.pop();
-    if (!/^\d+$/.test(adId)) {
-      throw new Error("ID inzerátu nebylo v URL nalezeno.");
-    }
-    return adId;
-  } catch (e) {
-    throw new Error("Neplatný formát URL.");
-  }
+function extractAdId(url) {
+    const match = url.match(/\/detail\/[^/]+\/[^/]+\/(\d+)/);
+    return match ? parseInt(match[1], 10) : null;
 }
 
 serve(async (req) => {
@@ -37,32 +28,40 @@ serve(async (req) => {
       throw new Error("V těle požadavku chybí 'adUrl'.");
     }
 
-    const adId = getAdIdFromUrl(adUrl);
+    const adId = extractAdId(adUrl);
+    if (!adId) {
+        throw new Error("Nepodařilo se extrahovat ID inzerátu z URL.");
+    }
 
+    // Krok 1: Získání Cookies
+    const handshakeResponse = await fetch('https://www.sauto.cz', { headers: BROWSER_HEADERS });
+    const cookiesRaw = handshakeResponse.headers.get("set-cookie")?.split(', ');
+    const cookies = cookiesRaw?.map(c => c.split(';')[0]).join('; ') || '';
+    if (!cookies) throw new Error('Nepodařilo se získat session cookies.');
+    const headersWithCookie = { ...BROWSER_HEADERS, 'Cookie': cookies };
+
+    // Krok 2: Získání detailů inzerátu
     const detailApiUrl = `https://www.sauto.cz/api/v1/items/${adId}`;
-    const detailResponse = await fetch(detailApiUrl, { headers: BROWSER_HEADERS });
+    const detailResponse = await fetch(detailApiUrl, { headers: headersWithCookie });
 
     if (!detailResponse.ok) {
-      const errorBody = await detailResponse.text();
-      throw new Error(`Chyba při získávání detailů inzerátu. Status: ${detailResponse.status}. Tělo odpovědi: ${errorBody}`);
+        throw new Error(`Chyba při načítání detailů inzerátu. Status: ${detailResponse.status}`);
     }
 
-    const adData = await detailResponse.json();
+    const detailData = await detailResponse.json();
 
-    if (!adData.result) {
-        throw new Error("API Sauto vrátilo odpověď bez klíče 'result'.");
+    if (!detailData.result) {
+        throw new Error("Odpověď z API Sauto neobsahuje platná data ('result' je prázdný).");
     }
 
-    return new Response(
-      JSON.stringify({ ad_details: adData.result }), // Vkládáme výsledek do klíče ad_details
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ ad_details: detailData.result }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
 
   } catch (error) {
     console.error("[GET-AD-DETAILS] Kritická chyba: ", error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

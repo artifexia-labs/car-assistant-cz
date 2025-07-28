@@ -22,6 +22,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchLoaderContainer = document.getElementById('loader-container');
     const searchResultsDiv = document.getElementById('results');
     const queryTextarea = document.getElementById('user-query');
+    const adContainer = document.getElementById('google-ad-container'); // <-- Находим контейнер для рекламы
+
+    let loadingInterval; // Переменная для хранения интервала
+
+    // Функция для генерации случайного числа
+    const getRandomInt = (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    
+    // Массив с сообщениями
+    const loadingMessages = [
+        "Vyhledávám nejlepší vozy...",
+        `Analyzuji ${getRandomInt(1200, 2800)} inzerátů...`,
+        "Porovnávám ceny a parametry...",
+        "Kontroluji historii vozidel...",
+        "Filtruji nejlepší nabídky...",
+        "Připravuji finální doporučení..."
+    ];
 
     if (searchForm) {
         searchForm.addEventListener('submit', async (event) => {
@@ -33,9 +51,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             searchSubmitButton.disabled = true;
-            searchSubmitButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> Pracuji...`;
-            searchLoaderContainer.style.display = 'block';
             searchResultsDiv.innerHTML = '';
+            
+            // Показываем рекламу
+            if(adContainer) adContainer.style.display = 'block';
+
+            // Запускаем смену сообщений
+            let messageIndex = 0;
+            searchSubmitButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> ${loadingMessages[messageIndex]}`;
+            
+            loadingInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % loadingMessages.length;
+                // Обновляем число в сообщении, если оно там есть
+                 if (loadingMessages[messageIndex].includes('Analyzuji')) {
+                    loadingMessages[messageIndex] = `Analyzuji ${getRandomInt(1200, 2800)} inzerátů...`;
+                }
+                searchSubmitButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> ${loadingMessages[messageIndex]}`;
+            }, 3500); // Меняем каждые 3.5 секунды
+
 
             try {
                 const { data, error } = await supabaseClient.functions.invoke('analyze-request-v2', {
@@ -50,7 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 searchResultsDiv.innerHTML = `<div class="error-message">Vyskytla se chyba: ${err.message}</div>`;
             } finally {
-                searchLoaderContainer.style.display = 'none';
+                // Останавливаем смену сообщений и возвращаем кнопку в исходное состояние
+                clearInterval(loadingInterval);
+                if(adContainer) adContainer.style.display = 'none'; // Скрываем рекламу
                 searchSubmitButton.disabled = false;
                 searchSubmitButton.innerHTML = 'Analyzovat nabídky';
             }
@@ -58,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayResults(data) {
+        // ... (остальной код функции displayResults не меняется)
         searchResultsDiv.innerHTML = '';
         if (data.summary_message) {
             const summaryEl = document.createElement('div');
@@ -75,8 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         data.inspected_cars.forEach(car => {
             const card = document.createElement('div');
             card.className = 'car-card';
-
-            // Создаем HTML для галереи изображений
             let images_html = '';
             if (car.images && car.images.length > 0) {
                 const image_items_html = car.images.slice(0, 3).map(img_url => 
@@ -111,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- ЛОГИКА ДЛЯ ВКЛАДКИ "АНАЛИЗ ОБЪЯВЛЕНИЯ" ---
+    // ... (эта часть кода остается без изменений)
     const adAnalysisForm = document.getElementById('ad-analysis-form');
     const adUrlInput = document.getElementById('ad-url');
     const analyzeAdButton = document.getElementById('analyze-ad-button');
@@ -127,18 +162,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             analyzeAdButton.disabled = true;
-            analyzeAdButton.textContent = 'Analyzuji...';
+            analyzeAdButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> Analyzuji...`;
             adLoaderContainer.style.display = 'block';
             adResultsDiv.innerHTML = '';
 
             try {
-                const { data, error } = await supabaseClient.functions.invoke('get-ad-details', { // Убедитесь, что эта функция существует и обновлена
+                const { data, error } = await supabaseClient.functions.invoke('analyze-ad-by-url', {
                     body: { adUrl },
                 });
 
                 if (error) throw new Error(data?.error || error.message);
                 
-                displayAdDetails(data.ad_details); // Передаем именно ad_details
+                displayAdAnalysis(data);
 
             } catch (err) {
                 adResultsDiv.innerHTML = `<div class="error-message">Vyskytla se chyba: ${err.message}</div>`;
@@ -150,54 +185,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function displayAdDetails(car) {
-        // Создаем HTML для галереи изображений
+    function displayAdAnalysis(data) {
+        const { original_ad, ai_analysis } = data;
+
         let images_html = '';
-        if (car.images && car.images.length > 0) {
-             const image_items_html = car.images.slice(0, 3).map(img => {
-                const imageUrl = `https:${img.url}?fl=exf|crr,1.33333,0|res,1024,768,1|wrm,/watermark/sauto.png,10,10|jpg,80,,1`;
-                return `<img src="${imageUrl}" alt="Fotka vozu" class="car-gallery-image">`;
-            }).join('');
+        if (original_ad.images && original_ad.images.length > 0) {
+             const image_items_html = original_ad.images.map(img_url => 
+                `<img src="${img_url}" alt="${original_ad.title}" class="car-gallery-image">`
+            ).join('');
             images_html = `<div class="car-gallery">${image_items_html}</div>`;
         }
 
-        const equipment_html = car.equipment_cb.map(item => `<li>${item.name}</li>`).join('');
+        const pros_html = ai_analysis.pros_cz.map(pro => `<li>${pro}</li>`).join('');
+        const cons_html = ai_analysis.cons_cz.map(con => `<li>${con}</li>`).join('');
+        const questions_html = ai_analysis.questions_for_seller_cz.map(q => `<li>${q}</li>`).join('');
+
+        const recommendation_class = ai_analysis.final_recommendation_cz.includes("Doporučuji") ? "reco-good" : "reco-bad";
 
         adResultsDiv.innerHTML = `
-            <div class="car-card">
+            <div class="car-card analysis-card">
                  ${images_html}
                 <div class="car-content-wrapper">
                     <div class="car-title">
-                        <h3>${car.name}</h3>
-                        <div class="car-price">${new Intl.NumberFormat('cs-CZ').format(car.price)} Kč</div>
+                        <h3><a href="${original_ad.url}" target="_blank" rel="noopener noreferrer">${original_ad.title}</a></h3>
+                        <div class="car-price">${original_ad.price}</div>
                     </div>
-                    <p class="car-description">${car.description.replace(/\n/g, '<br>')}</p>
-                    
-                    <div class="details-grid-full">
-                        <div class="details-section">
-                             <h4><i class="fas fa-info-circle"></i> Základní údaje</h4>
-                             <ul>
-                                <li><strong>Stav:</strong> ${car.condition_cb.name}</li>
-                                <li><strong>Najeto:</strong> ${new Intl.NumberFormat('cs-CZ').format(car.tachometer)} km</li>
-                                <li><strong>Vyrobeno:</strong> ${new Date(car.manufacturing_date).toLocaleDateString('cs-CZ')}</li>
-                                <li><strong>Karosérie:</strong> ${car.vehicle_body_cb.name}</li>
-                                <li><strong>Barva:</strong> ${car.color_cb.name}</li>
-                             </ul>
-                        </div>
-                        <div class="details-section">
-                             <h4><i class="fas fa-cogs"></i> Motor a pohon</h4>
-                             <ul>
-                                <li><strong>Palivo:</strong> ${car.fuel_cb.name}</li>
-                                <li><strong>Objem:</strong> ${car.engine_volume} ccm</li>
-                                <li><strong>Výkon:</strong> ${car.engine_power} kW (${Math.round(car.engine_power * 1.36)} koní)</li>
-                                <li><strong>Převodovka:</strong> ${car.gearbox_cb.name} (${car.gearbox_levels_cb.name})</li>
-                                <li><strong>Pohon:</strong> ${car.drive_cb.name}</li>
-                             </ul>
-                        </div>
+
+                    <div class="details-section summary">
+                        <h4>Celkové shrnutí od AI</h4>
+                        <p>${ai_analysis.summary_cz}</p>
                     </div>
-                     <div class="details-section" style="margin-top: 20px;">
-                        <h4><i class="fas fa-tools"></i> Výbava</h4>
-                        <ul class="equipment-list">${equipment_html}</ul>
+
+                    <div class="details-grid">
+                        <div class="details-section pros"><h4>Klady</h4><ul>${pros_html}</ul></div>
+                        <div class="details-section cons"><h4>Rizika a zápory</h4><ul>${cons_html}</ul></div>
+                    </div>
+                    <div class="details-section questions">
+                        <h4>Doporučené otázky pro prodejce</h4>
+                        <ul>${questions_html}</ul>
+                    </div>
+                     <div class="details-section recommendation ${recommendation_class}">
+                        <h4>Finální doporučení</h4>
+                        <p>${ai_analysis.final_recommendation_cz}</p>
                     </div>
                 </div>
             </div>

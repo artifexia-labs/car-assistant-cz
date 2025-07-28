@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-adsense-account" content="ca-pub-9584665542135701"> <title>AI Asistent pro výběr auta</title>
     <title>AI Asistent pro výběr auta</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./styles/index.css">
@@ -30,31 +31,30 @@
                     <textarea id="user-query" placeholder='Např. "Jsem student, bydlím v Praze a chci spolehlivé auto do 150 000 Kč s nízkou spotřebou."'></textarea>
                     <button type="submit" id="submit-button">Analyzovat nabídky</button>
                 </form>
-        
-                <div class="loader-container" id="loader-container">
-                    <div class="loader"></div>
-                    <p id="loader-text">Analyzuji váš požadavek...</p>
+
+                <div id="google-ad-container" style="display: none;">
+                    <p style="text-align: center; color: #888; padding: 20px 0;">Zde se brzy zobrazí reklama.</p>
                 </div>
                 
                 <div id="results"></div>
             </div>
 
             <div class="tab-content" id="analysis-tab">
-    <h2>Analýza inzerátu</h2>
-    <p>Vložte odkaz na inzerát z Sauto.cz a můj AI asistent ho detailně zanalyzuje.</p>
-    
-    <form id="ad-analysis-form">
-        <input type="url" id="ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
-        <button type="submit" id="analyze-ad-button">Analyzovat inzerát</button>
-    </form>
-
-    <div class="loader-container" id="ad-loader-container" style="display: none;">
-        <div class="loader"></div>
-        <p>Analyzuji inzerát, okamžik...</p>
-    </div>
-    
-    <div id="ad-results"></div>
-</div>
+                <h2>Analýza inzerátu</h2>
+                <p>Vložte odkaz na inzerát z Sauto.cz a můj AI asistent ho detailně zanalyzuje.</p>
+                
+                <form id="ad-analysis-form">
+                    <input type="url" id="ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
+                    <button type="submit" id="analyze-ad-button">Analyzovat inzerát</button>
+                </form>
+            
+                <div class="loader-container" id="ad-loader-container" style="display: none;">
+                    <div class="loader"></div>
+                    <p>Analyzuji inzerát, okamžik...</p>
+                </div>
+                
+                <div id="ad-results"></div>
+            </div>
         </main>
     </div>
 
