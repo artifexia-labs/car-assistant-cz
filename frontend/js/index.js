@@ -2,15 +2,41 @@ document.addEventListener('DOMContentLoaded', () => {
     // КОД ДЛЯ ПЕРЕКЛЮЧЕНИЯ ВКЛАДОК
     const tabs = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
+    const adUrlInput = document.getElementById('ad-url'); // Получаем инпут для URL
 
     tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', (e) => {
+            // Не переключать вкладку, если клик был по кнопке анализа
+            if (e.target.classList.contains('analyze-deep-btn')) return;
+
+            const tabId = tab.dataset.tab;
             tabs.forEach(item => item.classList.remove('active'));
             tabContents.forEach(item => item.classList.remove('active'));
             tab.classList.add('active');
-            document.getElementById(tab.dataset.tab).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
         });
     });
+
+    // Функция для переключения на вкладку анализа
+    window.switchToAnalysisTab = (url) => {
+        // Устанавливаем URL в инпут
+        if (adUrlInput) {
+            adUrlInput.value = url;
+        }
+        // Переключаем табы
+        tabs.forEach(item => item.classList.remove('active'));
+        tabContents.forEach(item => item.classList.remove('active'));
+        
+        const analysisTabButton = document.querySelector('.tab-button[data-tab="analysis-tab"]');
+        const analysisTabContent = document.getElementById('analysis-tab');
+
+        if (analysisTabButton) analysisTabButton.classList.add('active');
+        if (analysisTabContent) analysisTabContent.classList.add('active');
+
+        // Прокручиваем к форме анализа
+        analysisTabContent.scrollIntoView({ behavior: 'smooth' });
+    };
+
 
     // --- ОБЩИЕ ПЕРЕМЕННЫЕ И КЛИЕНТ SUPABASE ---
     const { createClient } = supabase;
@@ -19,19 +45,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ЛОГИКА ДЛЯ ВКЛАДКИ "ПОИСК АВТО" ---
     const searchForm = document.getElementById('car-search-form');
     const searchSubmitButton = document.getElementById('submit-button');
-    const searchLoaderContainer = document.getElementById('loader-container');
     const searchResultsDiv = document.getElementById('results');
     const queryTextarea = document.getElementById('user-query');
-    const adContainer = document.getElementById('google-ad-container'); // <-- Находим контейнер для рекламы
+    const adContainer = document.getElementById('google-ad-container');
 
-    let loadingInterval; // Переменная для хранения интервала
+    let loadingInterval; 
 
-    // Функция для генерации случайного числа
     const getRandomInt = (min, max) => {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     };
     
-    // Массив с сообщениями
     const loadingMessages = [
         "Vyhledávám nejlepší vozy...",
         `Analyzuji ${getRandomInt(1200, 2800)} inzerátů...`,
@@ -53,27 +76,27 @@ document.addEventListener('DOMContentLoaded', () => {
             searchSubmitButton.disabled = true;
             searchResultsDiv.innerHTML = '';
             
-            // Показываем рекламу
             if(adContainer) adContainer.style.display = 'block';
 
-            // Запускаем смену сообщений
             let messageIndex = 0;
             searchSubmitButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> ${loadingMessages[messageIndex]}`;
             
             loadingInterval = setInterval(() => {
                 messageIndex = (messageIndex + 1) % loadingMessages.length;
-                // Обновляем число в сообщении, если оно там есть
-                 if (loadingMessages[messageIndex].includes('Analyzuji')) {
+                if (loadingMessages[messageIndex].includes('Analyzuji')) {
                     loadingMessages[messageIndex] = `Analyzuji ${getRandomInt(1200, 2800)} inzerátů...`;
                 }
                 searchSubmitButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> ${loadingMessages[messageIndex]}`;
-            }, 3500); // Меняем каждые 3.5 секунды
+            }, 3500);
 
 
             try {
+                //  ----------- 🔥 ВОТ ИСПРАВЛЕНИЕ! 🔥 -----------
+                // Мы снова вызываем 'analyze-request-v2', а не 'call-gemini-inspector' напрямую.
                 const { data, error } = await supabaseClient.functions.invoke('analyze-request-v2', {
                     body: { userQuery },
                 });
+                // ---------------------------------------------
 
                 if (error) throw new Error(data?.error || error.message);
                 if (!data) throw new Error("Odpověď ze serveru je neplatná.");
@@ -83,9 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 searchResultsDiv.innerHTML = `<div class="error-message">Vyskytla se chyba: ${err.message}</div>`;
             } finally {
-                // Останавливаем смену сообщений и возвращаем кнопку в исходное состояние
                 clearInterval(loadingInterval);
-                if(adContainer) adContainer.style.display = 'none'; // Скрываем рекламу
+                if(adContainer) adContainer.style.display = 'none';
                 searchSubmitButton.disabled = false;
                 searchSubmitButton.innerHTML = 'Analyzovat nabídky';
             }
@@ -93,12 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayResults(data) {
-        // ... (остальной код функции displayResults не меняется)
         searchResultsDiv.innerHTML = '';
         if (data.summary_message) {
             const summaryEl = document.createElement('div');
             summaryEl.className = 'summary-message';
-            summaryEl.textContent = data.summary_message;
+            summaryEl.innerHTML = `<strong>Celkové shrnutí:</strong> ${data.summary_message}`; // Добавил жирный шрифт
             searchResultsDiv.appendChild(summaryEl);
         }
         if (!data.inspected_cars || data.inspected_cars.length === 0) {
@@ -108,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        data.inspected_cars.forEach(car => {
+        data.inspected_cars.forEach((car, index) => {
             const card = document.createElement('div');
             card.className = 'car-card';
             let images_html = '';
@@ -123,21 +144,65 @@ document.addEventListener('DOMContentLoaded', () => {
             const cons_html = car.cons_cz.map(con => `<li>${con}</li>`).join('');
             const questions_html = car.questions_for_seller_cz.map(q => `<li>${q}</li>`).join('');
             
+            const verdict_html = car.final_verdict_cz 
+                ? `<div class="details-section verdict">
+                     <h4>Verdikt AI</h4>
+                     <p>${car.final_verdict_cz.replace(/\n/g, '<br>')}</p>
+                   </div>`
+                : '';
+            
+            const vin_html = car.vin
+                ? `<div class="vin-code"><strong>VIN:</strong> ${car.vin}</div>`
+                : '';
+
+            let seller_info_html = '';
+            if (car.seller_info) {
+                 seller_info_html = `
+                    <div class="details-section seller-info">
+                        <h4>Informace o prodejci</h4>
+                        <ul>
+                            ${car.seller_info.shop_name ? `<li><span class="icon">🏢</span> <a href="${car.seller_info.shop_url || '#'}" target="_blank" rel="noopener noreferrer">${car.seller_info.shop_name}</a></li>` : ''}
+                            ${car.seller_info.name && !car.seller_info.shop_name ? `<li><span class="icon">👤</span> ${car.seller_info.name}</li>` : ''}
+                            ${car.seller_info.location ? `<li><span class="icon">📍</span> ${car.seller_info.location}</li>` : ''}
+                            ${car.seller_info.phone ? `<li><span class="icon">📞</span> <a href="tel:${car.seller_info.phone}">${car.seller_info.phone}</a></li>` : ''}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            const deep_analysis_button_html = `
+                <button class="analyze-deep-btn" onclick="window.switchToAnalysisTab('${car.url}')">
+                    <span class="icon">🔬</span> Hloubková analýza
+                </button>`;
+
             card.innerHTML = `
+                <div class="rank-badge">#${index + 1} Nejlepší nabídka</div>
                 ${images_html}
                 <div class="car-content-wrapper">
                     <div class="car-title">
                         <h3><a href="${car.url}" target="_blank" rel="noopener noreferrer">${car.title}</a></h3>
                         <div class="car-price">${car.price}</div>
                     </div>
-                    <p class="car-summary">${car.summary_cz}</p>
-                    <div class="details-grid">
-                        <div class="details-section pros"><h4>Klady</h4><ul>${pros_html}</ul></div>
-                        <div class="details-section cons"><h4>Rizika a zápory</h4><ul>${cons_html}</ul></div>
-                    </div>
-                    <div class="details-section questions" style="margin-top: 20px;">
-                        <h4>Doporučené otázky pro prodejce</h4>
-                        <ul>${questions_html}</ul>
+                    ${vin_html}
+                    <p class="car-summary"><strong>Shrnutí:</strong> ${car.summary_cz}</p>
+
+                    ${verdict_html}
+
+                    <div class="content-columns">
+                        <div class="main-analysis">
+                            <div class="details-grid">
+                                <div class="details-section pros"><h4>Klady</h4><ul>${pros_html}</ul></div>
+                                <div class="details-section cons"><h4>Rizika a zápory</h4><ul>${cons_html}</ul></div>
+                            </div>
+                            <div class="details-section questions">
+                                <h4>Doporučené otázky pro prodejce</h4>
+                                <ul>${questions_html}</ul>
+                            </div>
+                        </div>
+                        <div class="side-info">
+                            ${seller_info_html}
+                            ${deep_analysis_button_html}
+                        </div>
                     </div>
                 </div>`;
             searchResultsDiv.appendChild(card);
@@ -145,9 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- ЛОГИКА ДЛЯ ВКЛАДКИ "АНАЛИЗ ОБЪЯВЛЕНИЯ" ---
-    // ... (эта часть кода остается без изменений)
     const adAnalysisForm = document.getElementById('ad-analysis-form');
-    const adUrlInput = document.getElementById('ad-url');
     const analyzeAdButton = document.getElementById('analyze-ad-button');
     const adLoaderContainer = document.getElementById('ad-loader-container');
     const adResultsDiv = document.getElementById('ad-results');

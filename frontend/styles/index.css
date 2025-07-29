@@ -383,5 +383,154 @@ button[type="submit"]:hover:not(:disabled) {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    }    
+    }
+.vin-code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f0f2f5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    color: #333;
+    border: 1px solid var(--border-color);
+}
+.vin-code strong {
+    color: var(--text-color);
+}
+
+.content-columns {
+    display: flex;
+    gap: 30px;
+    margin-top: 20px;
+}
+.main-analysis {
+    flex-grow: 1;
+}
+.side-info {
+    flex-basis: 250px; /* Фиксированная ширина для боковой колонки */
+    flex-shrink: 0;
+}
+
+.details-section.seller-info {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+.details-section.seller-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.details-section.seller-info li {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 12px;
+}
+.details-section.seller-info li:last-child {
+    margin-bottom: 0;
+}
+.details-section.seller-info .icon {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+    margin-right: 8px;
+}
+
+.details-section.verdict {
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+.details-section.verdict h4 {
+    border-bottom: none;
+    margin: 0 0 10px 0;
+}
+.details-section.verdict p {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.verdict-good {
+    background-color: #e8f5e9; /* Светло-зеленый */
+    border: 1px solid #a5d6a7;
+    color: #1b5e20;
+}
+.verdict-bad {
+    background-color: #ffebee; /* Светло-красный */
+    border: 1px solid #ef9a9a;
+    color: #b71c1c;
+}
+.verdict-neutral {
+    background-color: #e3f2fd; /* Светло-синий */
+    border: 1px solid #90caf9;
+    color: #0d47a1;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .content-columns {
+        flex-direction: column;
+    }
+    .side-info {
+        flex-basis: auto;
+        width: 100%;
+    }
+} 
+.rank-badge {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 16px 0 16px 0;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.car-card {
+    position: relative; /* Необходимо для позиционирования значка */
+}
+
+/* Кнопка глубокого анализа */
+.analyze-deep-btn {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    border: 1px solid #90caf9;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.analyze-deep-btn:hover {
+    background-color: #bbdefb;
+    transform: translateY(-2px);
+}
+
+.analyze-deep-btn .icon {
+    font-size: 1.2rem;
+}
+
+/* Улучшение виджета продавца */
+.seller-info a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.seller-info a:hover {
+    text-decoration: underline;
+}   
 }
