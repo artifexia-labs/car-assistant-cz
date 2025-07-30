@@ -8,7 +8,7 @@
     })(window,document,'script','dataLayer','GTM-WV8CQL4G');</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-adsense-account" content="ca-pub-9584665542135701"> <title>AI Asistent pro výběr auta</title>
+    <meta name="google-adsense-account" content="ca-pub-9584665542135701">
     <title>AI Asistent pro výběr auta</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./styles/index.css">
@@ -26,6 +26,7 @@
         <div class="tabs">
             <button class="tab-button active" data-tab="search-tab">Hledání ojetého vozu</button>
             <button class="tab-button" data-tab="analysis-tab">Analýza inzerátu</button>
+            <button class="tab-button" data-tab="price-evaluation-tab">Ocenění ceny</button>
         </div>
 
         <main>
@@ -61,6 +62,24 @@
                 
                 <div id="ad-results"></div>
             </div>
+
+            <div class="tab-content" id="price-evaluation-tab">
+                <h2>Ocenění reálné ceny vozu</h2>
+                <p>Vložte odkaz na inzerát z Sauto.cz a AI odhadne jeho férovou tržní cenu a poskytne tipy pro vyjednávání.</p>
+                
+                <form id="price-evaluation-form">
+                    <input type="url" id="price-ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
+                    <button type="submit" id="evaluate-price-button">Ocenit vozidlo</button>
+                </form>
+            
+                <div class="loader-container" id="price-loader-container" style="display: none;">
+                    <div class="loader"></div>
+                    <p>Počítám reálnou cenu, chvilku strpení...</p>
+                </div>
+                
+                <div id="price-evaluation-results"></div>
+            </div>
+
         </main>
     </div>
 

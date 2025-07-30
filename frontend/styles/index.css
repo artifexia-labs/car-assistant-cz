@@ -532,5 +532,102 @@ button[type="submit"]:hover:not(:disabled) {
 }
 .seller-info a:hover {
     text-decoration: underline;
-}   
+}  
+.price-evaluation-card {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+.price-evaluation-header {
+    padding: 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.price-evaluation-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+}
+
+.price-evaluation-header a {
+    text-decoration: none;
+    color: var(--text-color);
+    transition: color 0.3s;
+}
+
+.price-evaluation-header a:hover {
+    color: var(--primary-color);
+}
+
+.price-evaluation-header .original-price {
+    font-size: 1rem;
+    color: var(--text-light);
+}
+
+.price-evaluation-body {
+    padding: 25px;
+}
+
+.estimated-price-box {
+    text-align: center;
+    background-color: #e3f2fd;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.estimated-price-box h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    color: #0d47a1;
+}
+
+.estimated-price-box .price-range {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.analysis-summary {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    font-style: italic;
+    color: var(--text-light);
+    border-left: 4px solid var(--primary-color);
+}
+
+.factors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 25px;
+}
+
+.details-section.negotiation ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.details-section.negotiation li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+}
+.details-section.negotiation li::before {
+    content: '💡';
+    font-size: 1.2rem;
+}
+
+
+@media (max-width: 600px) {
+    .factors-grid {
+        grid-template-columns: 1fr;
+    }
+}
 }

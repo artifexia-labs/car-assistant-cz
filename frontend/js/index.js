@@ -91,12 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
             try {
-                //  ----------- 🔥 ВОТ ИСПРАВЛЕНИЕ! 🔥 -----------
-                // Мы снова вызываем 'analyze-request-v2', а не 'call-gemini-inspector' напрямую.
                 const { data, error } = await supabaseClient.functions.invoke('analyze-request-v2', {
                     body: { userQuery },
                 });
-                // ---------------------------------------------
 
                 if (error) throw new Error(data?.error || error.message);
                 if (!data) throw new Error("Odpověď ze serveru je neplatná.");
@@ -119,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.summary_message) {
             const summaryEl = document.createElement('div');
             summaryEl.className = 'summary-message';
-            summaryEl.innerHTML = `<strong>Celkové shrnutí:</strong> ${data.summary_message}`; // Добавил жирный шрифт
+            summaryEl.innerHTML = `<strong>Celkové shrnutí:</strong> ${data.summary_message}`;
             searchResultsDiv.appendChild(summaryEl);
         }
         if (!data.inspected_cars || data.inspected_cars.length === 0) {
@@ -283,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="details-section pros"><h4>Klady</h4><ul>${pros_html}</ul></div>
                         <div class="details-section cons"><h4>Rizika a zápory</h4><ul>${cons_html}</ul></div>
                     </div>
-                    <div class="details-section questions">
+                    <div class.details-section questions">
                         <h4>Doporučené otázky pro prodejce</h4>
                         <ul>${questions_html}</ul>
                     </div>
@@ -294,5 +291,93 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
+    }
+
+    // --- 🔽 НОВАЯ ЛОГИКА ДЛЯ ВКЛАДКИ "ОЦЕНКА СТОИМОСТИ" 🔽 ---
+    const priceEvaluationForm = document.getElementById('price-evaluation-form');
+    const evaluatePriceButton = document.getElementById('evaluate-price-button');
+    const priceLoaderContainer = document.getElementById('price-loader-container');
+    const priceResultsDiv = document.getElementById('price-evaluation-results');
+    const priceAdUrlInput = document.getElementById('price-ad-url');
+
+    if (priceEvaluationForm) {
+        priceEvaluationForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const adUrl = priceAdUrlInput.value.trim();
+            if (!adUrl || !adUrl.includes('sauto.cz')) {
+                alert('Prosím, vložte platný odkaz na inzerát z Sauto.cz.');
+                return;
+            }
+
+            evaluatePriceButton.disabled = true;
+            evaluatePriceButton.innerHTML = `<div class="loader" style="width: 20px; height: 20px; border-width: 2px;"></div> Oceňuji...`;
+            priceLoaderContainer.style.display = 'block';
+            priceResultsDiv.innerHTML = '';
+
+            try {
+                // Вызываем новую функцию-оркестратор
+                const { data, error } = await supabaseClient.functions.invoke('evaluate-price-by-url', {
+                    body: { adUrl },
+                });
+
+                if (error) throw new Error(data?.error || error.message);
+                
+                displayPriceEvaluation(data);
+
+            } catch (err) {
+                priceResultsDiv.innerHTML = `<div class="error-message">Vyskytla se chyba: ${err.message}</div>`;
+            } finally {
+                priceLoaderContainer.style.display = 'none';
+                evaluatePriceButton.disabled = false;
+                evaluatePriceButton.textContent = 'Ocenit vozidlo';
+            }
+        });
+    }
+
+    function displayPriceEvaluation(data) {
+        const { original_ad, ai_appraisal } = data;
+        
+        // Форматирование чисел для цен
+        const formatPrice = (price) => new Intl.NumberFormat('cs-CZ').format(price) + ' Kč';
+
+        // Создаем HTML для списков
+        const positive_factors_html = ai_appraisal.positive_factors_cz.map(item => `<li>${item}</li>`).join('');
+        const negative_factors_html = ai_appraisal.negative_factors_cz.map(item => `<li>${item}</li>`).join('');
+        const negotiation_tips_html = ai_appraisal.negotiation_tips_cz.map(item => `<li>${item}</li>`).join('');
+        
+        const resultCard = `
+            <div class="price-evaluation-card">
+                <div class="price-evaluation-header">
+                     <h3><a href="${original_ad.url}" target="_blank" rel="noopener noreferrer">${original_ad.title}</a></h3>
+                     <p class="original-price">Inzerovaná cena: <strong>${original_ad.price}</strong></p>
+                </div>
+                <div class="price-evaluation-body">
+                    <div class="estimated-price-box">
+                        <h4>Odhadovaná tržní cena</h4>
+                        <div class="price-range">${formatPrice(ai_appraisal.estimated_price_min)} - ${formatPrice(ai_appraisal.estimated_price_max)}</div>
+                    </div>
+
+                    <p class="analysis-summary">${ai_appraisal.analysis_summary_cz}</p>
+
+                    <div class="factors-grid">
+                        <div class="details-section pros">
+                            <h4>Faktory zvyšující cenu</h4>
+                            <ul>${positive_factors_html}</ul>
+                        </div>
+                        <div class="details-section cons">
+                            <h4>Faktory snižující cenu</h4>
+                            <ul>${negative_factors_html}</ul>
+                        </div>
+                    </div>
+                    
+                    <div class="details-section negotiation">
+                        <h4>Tipy pro vyjednávání</h4>
+                        <ul>${negotiation_tips_html}</ul>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        priceResultsDiv.innerHTML = resultCard;
     }
 });

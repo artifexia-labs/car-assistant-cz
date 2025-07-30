@@ -40,3 +40,41 @@ import_map = "import_map.json"
 
 [functions.analyze-ad-by-url]
 import_map = "import_map.json"
+
+[functions.call-gemini-appraiser]
+import_map = "import_map.json"
+
+[functions.evaluate-price-by-url]
+import_map = "import_map.json"
+[functions.call-gemini-filter-extractor]
+enabled = true
+verify_jwt = true
+import_map = "./functions/call-gemini-filter-extractor/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/call-gemini-filter-extractor/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/call-gemini-filter-extractor/*.html" ]
+
+[functions.scrape-sauto-broad-experimental]
+enabled = true
+verify_jwt = true
+import_map = "./functions/scrape-sauto-broad-experimental/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/scrape-sauto-broad-experimental/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/scrape-sauto-broad-experimental/*.html" ]
+
+[functions.analyze-request-v3-experimental]
+enabled = true
+verify_jwt = true
+import_map = "./functions/analyze-request-v3-experimental/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/analyze-request-v3-experimental/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/analyze-request-v3-experimental/*.html" ]
