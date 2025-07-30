@@ -1,32 +1,73 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+// /supabase/functions/analyze-request-v3-experimental/index.ts
+import { serve } from "std/http";
+import { createClient } from '@supabase/supabase-js';
+import { corsHeaders } from '../_shared/cors.ts';
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
-
-console.log("Hello from Functions!")
-
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+  try {
+    const { userQuery } = await req.json();
+    if (!userQuery) {
+      throw new Error("V těle požadavku chybí 'userQuery'.");
+    }
 
-/* To invoke locally:
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    );
 
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+    // --- Krok 1: Volání nového "Filter Extractora" ---
+    console.log('[Orchestrator-V3] Vstupní dotaz:', userQuery);
+    console.log('[Orchestrator-V3] Volám Filter Extractor...');
+    const { data: extractorData, error: extractorError } = await supabaseClient.functions.invoke(
+      'call-gemini-filter-extractor',
+      { body: { userQuery } }
+    );
+    if (extractorError) throw extractorError;
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/analyze-request-v3-experimental' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
+    const filters = extractorData?.filters;
+    if (!filters) {
+      console.error('[Orchestrator-V3] Kritická chyba: Filter Extractor nevrátil "filters".', extractorData);
+      throw new Error('Filter Extractor nevrátil platné filtry.');
+    }
+    console.log('[Orchestrator-V3] Extrahované filtry:', { filters });
+    
+    // --- Krok 2: Volání nového "Broad Scrapera" ---
+    console.log('[Orchestrator-V3] Volám Sběrače dat (scrape-sauto-broad-experimental)...');
+    const { data: carListings, error: scrapeError } = await supabaseClient.functions.invoke(
+      'scrape-sauto-broad-experimental',
+      { body: { filters } } // Pouze filtry, bez modelů
+    );
+    if (scrapeError) throw scrapeError;
+    if (!carListings || carListings.length === 0) {
+        console.log('[Orchestrator-V3] Sběrač dat nenalezl žádné vozy.');
+        return new Response(JSON.stringify({ summary_message: "Podle zadaných kritérií se nepodařilo najít žádné vozy. Zkuste prosím upravit svůj dotaz.", inspected_cars: [] }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    }
 
-*/
+    console.log(`[Orchestrator-V3] Sběrač dat nalezl ${carListings.length} vozů. Volám Inspektora...`);
+    
+    // --- Krok 3: Volání stávajícího "Inspektora" ---
+    const { data: inspectorResult, error: inspectorError } = await supabaseClient.functions.invoke(
+      'call-gemini-inspector', // Používáme stávajícího inspektora
+      { body: { userQuery, carListings } }
+    );
+    if (inspectorError) throw inspectorError;
+
+    console.log('[Orchestrator-V3] Proces dokončen. Odesílám finální výsledek.');
+    return new Response(JSON.stringify(inspectorResult), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+
+  } catch (error) {
+    console.error('[Orchestrator-V3] Kritická chyba v procesu:', error.message);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

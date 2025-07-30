@@ -1,32 +1,74 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+// /supabase/functions/call-gemini-filter-extractor/index.ts
+import { serve } from 'std/http';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "jsr:@supabase/functions-js/edge-runtime.d.ts"
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
-console.log("Hello from Functions!")
+const genAI = new GoogleGenerativeAI(Deno.env.get("GEMINI_API_KEY")!);
 
-Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
   }
 
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
-})
+  try {
+    const { userQuery } = await req.json();
+    if (!userQuery) {
+      throw new Error("V těle požadavku chybí 'userQuery'.");
+    }
 
-/* To invoke locally:
+    const prompt = `
+      Jsi expert na analýzu požadavků na nákup ojetých vozů v Česku. Tvým úkolem je rozebrat textový požadavek uživatele a extrahovat z něj POUZE filtry pro vyhledávací API portálu Sauto.cz. Nehádej konkrétní značky ani modely aut.
 
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+      Požadavek uživatele: "${userQuery}"
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/call-gemini-filter-extractor' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
+      Tvá odpověď MUSÍ být POUZE ve formátu JSON a obsahovat hlavní objekt s klíčem "filters".
+      Pokud parametr v požadavku není specifikován, NEUVÁDĚJ ho v objektu. Podporované filtry jsou:
+         - "price_to": Maximální cena (jako číslo, např. 250000)
+         - "tachometer_to": Maximální nájezd v km (jako číslo, např. 150000)
+         - "fuel": Typ paliva (použij jednu z hodnot: "benzin", "nafta", "hybridni", "lpg", "cng", "elektro")
+         - "gearbox": Převodovka (použij jednu z hodnot: "manualni", "automaticka")
+         - "body_type_seo": Typ karoserie (např. "kombi", "suv", "sedan", "hatchback", "mpv")
+         - "year_from": Minimální rok výroby (jako číslo)
+         - "condition_seo": Stav vozu (použij "ojete", pokud se mluví o ojetině, nebo "predvadeci")
 
-*/
+      Příklad odpovědi pro dotaz "Hledám spolehlivé rodinné kombi do 400 tisíc Kč, automat, nafta, nájezd max 100 000 km, od roku 2018.":
+      {
+        "filters": {
+          "price_to": 400000,
+          "tachometer_to": 100000,
+          "fuel": "nafta",
+          "gearbox": "automaticka",
+          "body_type_seo": "kombi",
+          "year_from": 2018,
+          "condition_seo": "ojete"
+        }
+      }
+    `;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        response_mime_type: "application/json",
+      },
+    });
+
+    const structuredResponse = JSON.parse(result.response.text());
+
+    return new Response(JSON.stringify(structuredResponse), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+
+  } catch (error) {
+    console.error("Chyba v 'call-gemini-filter-extractor':", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500,
+    });
+  }
+});
