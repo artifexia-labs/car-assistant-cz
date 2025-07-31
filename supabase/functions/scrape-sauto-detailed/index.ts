@@ -67,6 +67,7 @@ serve(async (req) => {
           } else {
               hasMorePages = false;
           }
+          // Omezení na 1000 inzerátů na model
           if (offset >= 1000) {
               hasMorePages = false;
           }
@@ -76,21 +77,21 @@ serve(async (req) => {
 
     const uniqueAds = Array.from(new Map(summaryAds.map(ad => [ad.id, ad])).values());
     uniqueAds.sort((a, b) => new Date(b.sorting_date).getTime() - new Date(a.sorting_date).getTime());
-    const top20Ads = uniqueAds.slice(0, 20);
+    // --- 🔥 ZMĚNA: Snížení počtu nejlepších inzerátů z 20 na 15 🔥 ---
+    const top15Ads = uniqueAds.slice(0, 15);
 
-    if (top20Ads.length === 0) {
+    if (top15Ads.length === 0) {
         return new Response(JSON.stringify([]), { headers: { ...corsHeaders, "Content-Type": "application/json" }});
     }
 
     // Krok 3: Postupné načítání detailů
-    console.log(`[SCRAPER] Spouštím detailní sběr pro ${top20Ads.length} nejlepších...`);
+    console.log(`[SCRAPER] Spouštím detailní sběr pro ${top15Ads.length} nejlepších...`);
     const carListings = [];
-    for (const ad of top20Ads) {
+    for (const ad of top15Ads) {
       try {
         const detailResponse = await fetch(`https://www.sauto.cz/api/v1/items/${ad.id}`, { headers: headersWithCookie });
         if (detailResponse.ok) {
           const detailData = await detailResponse.json();
-          // --- 🔥 ZMĚNA ZDE: Ukládáme pouze objekt 'result' 🔥 ---
           if (detailData.result) {
             carListings.push(detailData.result);
           }

@@ -9,16 +9,14 @@ const corsHeaders = {
 
 const genAI = new GoogleGenerativeAI(Deno.env.get("GEMINI_API_KEY")!);
 
+// Helper funkce pro získání detailů zůstává, je stále užitečná
 async function getAdDetails(adId: number) {
     const detailApiUrl = `https://www.sauto.cz/api/v1/items/${adId}`;
     try {
         const detailResponse = await fetch(detailApiUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
         if (!detailResponse.ok) return null;
         const detailData = await detailResponse.json();
-        // --- 🔥 Логирование полного ответа от API 🔥 ---
-        console.log(`[INSPECTOR] Raw API Response for AD ID ${adId}:`);
-        console.log(JSON.stringify(detailData, null, 2));
-        return detailData.result;
+        return detailData.result; 
     } catch (e) {
         console.error(`[INSPECTOR] Chyba při načítání detailu pro ID ${adId}:`, e);
         return null;
@@ -32,53 +30,36 @@ serve(async (req) => {
     const { userQuery, carListings } = await req.json();
     if (!userQuery || !carListings) { throw new Error("V požadavku chybí 'userQuery' nebo 'carListings'."); }
 
-    const sortedListings = carListings
-      .sort((a, b) => (a.price || Infinity) - (b.price || Infinity))
-      .sort((a, b) => (a.tachometer || Infinity) - (b.tachometer || Infinity));
+    // --- 🔥 ZMĚNA: Snížení počtu kandidátů z 20 na 15 🔥 ---
+    const topCandidates = carListings.slice(0, 15);
 
-    const topCandidates = sortedListings.slice(0, 20);
+    // Načtení detailů (pokud by carListings neobsahovaly všechny detaily)
+    // Tento krok je spíše pojistka, protože scrape-sauto-detailed by již měl vracet plné detaily
     const detailedAds = (await Promise.all(topCandidates.map(ad => getAdDetails(ad.id)))).filter(ad => ad !== null);
-
+    
     const adsMap = new Map(detailedAds.map(ad => [ad.id, ad]));
-    console.log(`[INSPECTOR] Загружены детали для ${detailedAds.length} объявлений.`);
+    console.log(`[INSPECTOR] Připraveno ${detailedAds.length} detailních inzerátů k analýze.`);
 
     if (detailedAds.length === 0) {
         return new Response(JSON.stringify({ inspected_cars: [], summary_message: "Bohužel se nepodařilo načíst podrobnosti pro nalezené vozy." }), { headers: { ...corsHeaders, "Content-Type": "application/json" }});
     }
 
-    const adsForPrompt = detailedAds.map((ad) => {
-      const year = ad.manufacturing_date ? new Date(ad.manufacturing_date).getFullYear() : 'neuvedeno';
-      const sellerType = ad.user?.user_service?.shop_name ? `Prodejce (dealer): ${ad.user.user_service.shop_name}` : "Soukromý prodejce";
-
-      const infoBlock = `--- Inzerát ID: ${ad.id} ---
-- Titulek: ${ad.name}
-- Cena: ${ad.price.toLocaleString('cs-CZ')} Kč
-- Rok výroby: ${year}
-- Nájezd: ${ad.tachometer} km
-- VIN: ${ad.vin || "Neuvedeno"}
-- Prodejce: ${sellerType}
-- Popis od prodejce: "${ad.description || 'Bez popisu'}"
-- Klíčové parametry: Karosérie: ${ad.vehicle_body_cb?.name || "n/a"}, Palivo: ${ad.fuel_cb?.name || "n/a"}, Převodovka: ${ad.gearbox_cb?.name || "n/a"}, Výkon: ${ad.engine_power ? `${ad.engine_power} kW` : 'n/a'}
-- Historie: První majitel: ${ad.first_owner ? 'Ano' : 'Ne'}, Země původu: ${ad.country_of_origin_cb?.name || "n/a"}, Havarováno: ${ad.crashed_in_past ? 'Ano' : 'Ne'}
-- Kompletní výbava: ${(ad.equipment_cb && Array.isArray(ad.equipment_cb)) ? ad.equipment_cb.map((eq) => eq.name).join(', ') : "Není k dispozici"}
-      `;
-      return infoBlock;
-    }).join('\n\n');
-
+    // --- 🔥 ZMĚNA: Nový, striktnější prompt, který posílá kompletní JSON data 🔥 ---
     const prompt = `
-      Jsi špičkový AI auto-expert a poradce pro nákup ojetin. Tvým úkolem je seřadit následující inzeráty od NEJLEPŠÍ nabídky po nejhorší a pro 3 nejlepší vytvořit detailní, přesvědčivou a upřímnou analýzu.
+      Jsi špičkový AI auto-expert a poradce pro nákup ojetin. Tvým úkolem je analyzovat následující JSON data s inzeráty, seřadit je od NEJLEPŠÍ nabídky po nejhorší a pro 3 nejlepší vytvořit detailní, přesvědčivou a upřímnou analýzu. DŮSLEDNĚ se řiď požadavkem uživatele.
 
       Požadavek uživatele: "${userQuery}"
 
-      PRAVIDLA PRO ODPOVĚĎ:
-      1.  **Seřazení výsledků**: V JSON odpovědi musí být pole "inspected_cars" seřazeno od nejlepšího po nejhorší nabídku na základě tvého expertního posouzení (cena, stav, nájezd, historie, poptávka uživatele).
-      2.  **Detailní souhrn (summary_cz)**: Napiš alespoň 2-3 věty. Začni celkovým dojmem a zdůrazni nejdůležitější aspekt vozu.
-      3.  **Argumentace (pros_cz, cons_cz)**: Ke každému bodu přidej krátké vysvětlení a konkrétní údaj z inzerátu v závorce.
-      4.  **Rozšířený verdikt (final_verdict_cz)**: Toto je nejdůležitější část! Napiš detailní odstavec (3-5 vět). Jasně řekni, zda se koupě vyplatí. Pro koho je auto vhodné? Na jaké počáteční investice se má kupující připravit? Jaké jsou dlouhodobé vyhlídky? Buď upřímný a přímý.
-      5.  **Kontrola VIN**: Pokud VIN v inzerátu končí na "XXXXXX" nebo chybí, přidej do "questions_for_seller_cz" otázku na kompletní VIN.
+      DŮLEŽITÁ PRAVIDLA PRO ANALÝZU A ODPOVĚĎ:
+      1.  **ZDROJ DAT**: Tvůj jediný zdroj informací je poskytnutý JSON. Důkladně analyzuj VŠECHNY dostupné klíče a hodnoty pro každý inzerát. Věnuj zvláštní pozornost detailům jako je barva (hledej v objektu \`color_cb\`), výbava (\`equipment_cb\`), stav (\`condition_cb\`), původ (\`country_of_origin_cb\`) a specifikace motoru.
+      2.  **SEŘAZENÍ**: V JSON odpovědi musí být pole "inspected_cars" seřazeno od nejlepšího po nejhorší nabídku na základě TVÉHO expertního posouzení, které striktně zohledňuje požadavek uživatele a celkovou výhodnost nabídky (cena, stav, nájezd, historie, výbava).
+      3.  **DETAILNÍ SOUHRN (summary_cz)**: Napiš alespoň 2-3 věty. Začni celkovým dojmem a zdůrazni nejdůležitější aspekt vozu ve vztahu k dotazu uživatele.
+      4.  **ARGUMENTACE (pros_cz, cons_cz)**: Ke každému bodu přidej krátké vysvětlení a konkrétní údaj z JSONu v závorce. Buď konkrétní.
+      5.  **ROZŠÍŘENÝ VERDIKT (final_verdict_cz)**: Toto je nejdůležitější část! Napiš detailní odstavec (3-5 vět). Jasně řekni, zda se koupě vyplatí. Pro koho je auto vhodné? Na jaké počáteční investice se má kupující připravit? Jaké jsou dlouhodobé vyhlídky? Buď upřímný, přímý a kritický.
+      6.  **KONTROLA VIN**: Pokud VIN v inzerátu chybí, je neúplný, nebo končí na "XXXXXX", PŘIDEJ do "questions_for_seller_cz" otázku na kompletní VIN pro online prověření historie.
 
-      Seznam inzerátů k analýze:
-      ${adsForPrompt}
+      JSON data s inzeráty k analýze:
+      ${JSON.stringify(detailedAds, null, 2)}
 
       Tvá odpověď musí být POUZE ve formátu JSON. Vytvoř hlavní objekt se dvěma klíči:
       1. "summary_message": Krátká souhrnná zpráva pro uživatele v češtině.
@@ -91,7 +72,7 @@ serve(async (req) => {
          - "final_verdict_cz": Detailní odstavec s finálním doporučením a očekáváním.
     `;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-pro" }); // Používáme nejnovější model
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { response_mime_type: "application/json" },
@@ -99,6 +80,7 @@ serve(async (req) => {
 
     const aiResponse = JSON.parse(result.response.text());
 
+    // Sestavení finální odpovědi pro frontend
     const finalInspectedCars = aiResponse.inspected_cars.map(aiCar => {
         const originalAd = adsMap.get(aiCar.id);
         if (!originalAd) return null;
@@ -117,34 +99,30 @@ serve(async (req) => {
             price: `${originalAd.price.toLocaleString('cs-CZ')} Kč`,
             images: image_urls,
             vin: originalAd.vin || null,
-            seller_info: { // --- 🔥 Расширенная информация о продавце 🔥 ---
-                name: originalAd.seller_info?.seller_name || originalAd.user?.user_service?.shop_name || null,
+            seller_info: {
+                name: originalAd.seller_info?.seller_name || originalAd.user?.user_service?.shop_name || "Soukromý prodejce",
                 location: originalAd.seller_info?.location?.title || null,
                 phone: originalAd.phone || originalAd.seller_info?.seller_phones?.[0] || null,
                 shop_name: originalAd.user?.user_service?.shop_name || null,
                 shop_url: originalAd.user?.user_service?.shop_url || null
             },
-            summary_cz: aiCar.summary_cz,
-            pros_cz: aiCar.pros_cz,
-            cons_cz: aiCar.cons_cz,
-            questions_for_seller_cz: aiCar.questions_for_seller_cz,
-            final_verdict_cz: aiCar.final_verdict_cz // --- 🔥 Расширенный вердикт 🔥 ---
+            ...aiCar // Přidání analýzy od AI
         };
     }).filter(car => car !== null);
 
     const finalReport = {
         summary_message: aiResponse.summary_message,
-        inspected_cars: finalInspectedCars, // --- 🔥 Результаты уже отсортированы AI 🔥 ---
+        inspected_cars: finalInspectedCars,
     };
 
-    console.log("[INSPECTOR] Финальный отчет собран. Отправка на фронтенд.");
+    console.log("[INSPECTOR] Finální report sestaven. Odesílám na frontend.");
     return new Response(JSON.stringify(finalReport), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200,
     });
 
   } catch (error) {
-    console.error(`[INSPECTOR] Критическая ошибка: ${error.message}`);
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error(`[INSPECTOR] Kritická chyba: ${error.message}\n${error.stack}`);
+    return new Response(JSON.stringify({ error: `Kritická chyba v inspektoru: ${error.message}` }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
   }
