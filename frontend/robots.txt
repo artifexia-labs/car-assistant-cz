@@ -1,0 +1,6 @@
+# Povolit všem robotům přístup na celý web
+User-agent: *
+Disallow:
+
+# Uvést cestu k sitemapě
+Sitemap: https://www.proklepniauto.cz/sitemap.xml

@@ -3,86 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>O nás - proklepniauto.cz</title>
+    <link rel="icon" href="./favicon.ico" />
+    
+    <title>O nás | Mise projektu proklepniauto.cz</title>
+    <meta name="description" content="Zjistěte, proč a jak vznikl projekt proklepniauto.cz. Naše mise je přinést transparentnost na trh s ojetými vozy pomocí umělé inteligence.">
+    <meta name="keywords" content="o nás, artifexia labs, mise, vize, technologie, AI, umělá inteligence v automobilovém průmyslu">
+    <meta name="author" content="Artifexia Labs">
+    <link rel="canonical" href="https://www.proklepniauto.cz/about.html">
+
+    <meta property="og:title" content="O nás | Mise projektu proklepniauto.cz">
+    <meta property="og:description" content="Zjistěte, proč a jak vznikl projekt proklepniauto.cz a jak chceme změnit trh s ojetými vozy.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.proklepniauto.cz/about.html">
+    <meta property="og:image" content="https://www.proklepniauto.cz/social_preview.png"> <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="proklepniauto.cz">
+    <meta property="og:locale" content="cs_CZ">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="O nás | Mise projektu proklepniauto.cz">
+    <meta name="twitter:description" content="Zjistěte, proč a jak vznikl projekt proklepniauto.cz a jak chceme změnit trh s ojetými vozy.">
+    <meta name="twitter:image" content="https://www.proklepniauto.cz/social_preview.png">
+    
     <link rel="stylesheet" href="/styles/index.css">
     <style>
-        .about-header {
-            padding: 60px 20px;
-            text-align: center;
-            border-radius: var(--border-radius-lg);
-            background-color: var(--card-background);
-            margin-bottom: 40px;
-        }
-        .about-header h1 {
-            font-size: 3rem;
-            color: var(--text-color);
-            margin: 0;
-        }
-        .about-header p {
-            font-size: 1.2rem;
-            color: var(--subtle-text);
-            max-width: 700px;
-            margin: 15px auto 0 auto;
-        }
-        .about-section {
-            background-color: var(--card-background);
-            padding: 40px;
-            border-radius: var(--border-radius-lg);
-            margin-bottom: 30px;
-        }
-        .about-section h2 {
-            font-size: 2rem;
-            margin-top: 0;
-            margin-bottom: 25px;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 15px;
-        }
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            align-items: center;
-        }
-        .grid-icon {
-            font-size: 4rem;
-            text-align: center;
-            line-height: 1;
-        }
-        .cta-section {
-            text-align: center;
-            padding: 60px 40px;
-            background-color: #1c1c1e;
-            color: white;
-            border-radius: var(--border-radius-lg);
-        }
-        .cta-section h2 {
-            font-size: 2.2rem;
-            margin: 0 0 15px 0;
-        }
-        .cta-section p {
-            margin: 0 0 30px 0;
-            color: #a0a0a0;
-            font-size: 1.1rem;
-        }
-        .cta-button {
-            display: inline-block;
-            padding: 16px 32px;
-            background-color: var(--primary-color);
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            border-radius: var(--border-radius-md);
-            transition: all 0.3s ease;
-        }
-        .cta-button:hover {
-            background-color: var(--primary-dark);
-            transform: scale(1.05);
-        }
-
-        @media (max-width: 768px) {
-            .about-grid { grid-template-columns: 1fr; }
-            .about-header h1 { font-size: 2.5rem; }
-        }
+        .about-header { padding: 60px 20px; text-align: center; border-radius: var(--border-radius-lg); background-color: var(--card-background); margin-bottom: 40px; }
+        .about-header h1 { font-size: 3rem; color: var(--text-color); margin: 0; }
+        .about-header p { font-size: 1.2rem; color: var(--subtle-text); max-width: 700px; margin: 15px auto 0 auto; }
+        .about-section { background-color: var(--card-background); padding: 40px; border-radius: var(--border-radius-lg); margin-bottom: 30px; }
+        .about-section h2 { font-size: 2rem; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+        .grid-icon { font-size: 4rem; text-align: center; line-height: 1; }
+        .cta-section { text-align: center; padding: 60px 40px; background-color: #1c1c1e; color: white; border-radius: var(--border-radius-lg); }
+        .cta-section h2 { font-size: 2.2rem; margin: 0 0 15px 0; }
+        .cta-section p { margin: 0 0 30px 0; color: #a0a0a0; font-size: 1.1rem; }
+        .cta-button { display: inline-block; padding: 16px 32px; background-color: var(--primary-color); color: white; text-decoration: none; font-weight: 600; border-radius: var(--border-radius-md); transition: all 0.3s ease; }
+        .cta-button:hover { background-color: var(--primary-dark); transform: scale(1.05); }
+        @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } .about-header h1 { font-size: 2.5rem; } }
     </style>
 </head>
 <body>
