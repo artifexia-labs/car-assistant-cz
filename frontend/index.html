@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-9584665542135701">
-    <title>AI Asistent pro výběr auta</title>
+    <title>proklepniauto.cz | AI Asistent pro výběr auta</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="./styles/index.css">
     <link rel="icon" href="./favicon.ico" />
@@ -17,72 +17,104 @@
 <body>
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WV8CQL4G"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
     <div class="container">
         <header>
-            <h1>AI Asistent pro auta</h1>
-            <p class="subtitle">Váš chytrý pomocník pro svět ojetých vozů.</p>
+            <div class="logo">🚗 proklepniauto.cz</div>
+            <h1>Váš nový AI poradce ve světě aut</h1>
+            <p class="subtitle">Přestaňte tápat v inzerátech. Získejte okamžitou analýzu, ocenění a výhodu při vyjednávání.</p>
         </header>
 
-        <div class="tabs">
-            <button class="tab-button active" data-tab="search-tab">Hledání ojetého vozu</button>
-            <button class="tab-button" data-tab="analysis-tab">Analýza inzerátu</button>
-            <button class="tab-button" data-tab="price-evaluation-tab">Ocenění ceny</button>
-        </div>
-
-        <main>
-            <div class="tab-content active" id="search-tab">
-                <h2>Najdu ti nejlepší ojeté auto.</h2>
-                <p>Popiš mi, co hledáš, a můj AI asistent prohledá Sauto.cz a vybere nejlepší nabídky.</p>
-                
-                <form id="car-search-form">
-                    <textarea id="user-query" placeholder='Např. "Jsem student, bydlím v Praze a chci spolehlivé auto do 150 000 Kč s nízkou spotřebou."'></textarea>
-                    <button type="submit" id="submit-button">Analyzovat nabídky</button>
-                </form>
-
-                <div id="google-ad-container" style="display: none;">
-                    <p style="text-align: center; color: #888; padding: 20px 0;">Zde se brzy zobrazí reklama.</p>
-                </div>
-                
-                <div id="results"></div>
+        <main class="main-card">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="search-tab">
+                    <span class="tab-icon">✨</span>
+                    <span class="tab-text">Chytré Hledání</span>
+                </button>
+                <button class="tab-button" data-tab="analysis-tab">
+                    <span class="tab-icon">🔍</span>
+                    <span class="tab-text">Hloubková Analýza</span>
+                </button>
+                <button class="tab-button" data-tab="price-evaluation-tab">
+                    <span class="tab-icon">💰</span>
+                    <span class="tab-text">Ocenění Vozu</span>
+                </button>
             </div>
 
-            <div class="tab-content" id="analysis-tab">
-                <h2>Analýza inzerátu</h2>
-                <p>Vložte odkaz na inzerát z Sauto.cz a můj AI asistent ho detailně zanalyzuje.</p>
-                
-                <form id="ad-analysis-form">
-                    <input type="url" id="ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
-                    <button type="submit" id="analyze-ad-button">Analyzovat inzerát</button>
-                </form>
-            
-                <div class="loader-container" id="ad-loader-container" style="display: none;">
-                    <div class="loader"></div>
-                    <p>Analyzuji inzerát, okamžik...</p>
+            <div class="tab-content-wrapper">
+                <div class="tab-content active" id="search-tab">
+                    <h2>Nechte AI najít auto za vás</h2>
+                    <p>Popište, co hledáte. AI prohledá Sauto.cz a vybere ty nejlepší nabídky přesně pro vás.</p>
+                    <form id="car-search-form" class="main-form">
+                        <textarea id="user-query" placeholder='Např. "Hledám spolehlivé auto pro rodinu s dětmi do 250 000 Kč, s velkým kufrem a nízkou spotřebou. Jezdíme hlavně po městě."'></textarea>
+                        <button type="submit" id="submit-button">
+                            <span class="button-icon">🚀</span> Najít nejlepší nabídky
+                        </button>
+                    </form>
+                    <div id="results"></div>
                 </div>
-                
-                <div id="ad-results"></div>
-            </div>
 
-            <div class="tab-content" id="price-evaluation-tab">
-                <h2>Ocenění reálné ceny vozu</h2>
-                <p>Vložte odkaz na inzerát z Sauto.cz a AI odhadne jeho férovou tržní cenu a poskytne tipy pro vyjednávání.</p>
-                
-                <form id="price-evaluation-form">
-                    <input type="url" id="price-ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
-                    <button type="submit" id="evaluate-price-button">Ocenit vozidlo</button>
-                </form>
-            
-                <div class="loader-container" id="price-loader-container" style="display: none;">
-                    <div class="loader"></div>
-                    <p>Počítám reálnou cenu, chvilku strpení...</p>
+                <div class="tab-content" id="analysis-tab">
+                    <h2>Odhalte všechna tajemství inzerátu</h2>
+                    <p>Vložte odkaz na inzerát a AI odhalí skryté vady, klady a připraví vám otázky na prodejce.</p>
+                    <form id="ad-analysis-form" class="main-form">
+                        <input type="url" id="ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
+                        <button type="submit" id="analyze-ad-button">
+                            <span class="button-icon">🔬</span> Analyzovat inzerát
+                        </button>
+                    </form>
+                    <div id="ad-results"></div>
                 </div>
-                
-                <div id="price-evaluation-results"></div>
-            </div>
 
+                <div class="tab-content" id="price-evaluation-tab">
+                    <h2>Zjistěte skutečnou cenu vozu</h2>
+                    <p>Nenechte se napálit. AI odhadne férovou tržní cenu a dá vám argumenty pro vyjednávání.</p>
+                    <form id="price-evaluation-form" class="main-form">
+                        <input type="url" id="price-ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
+                        <button type="submit" id="evaluate-price-button">
+                            <span class="button-icon">💸</span> Ocenit vozidlo
+                        </button>
+                    </form>
+                    <div id="price-evaluation-results"></div>
+                </div>
+            </div>
         </main>
     </div>
 
-<script src="./js/index.js"></script>
+    <script src="./js/index.js"></script>
+    
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <h4>🚗 proklepniauto.cz</h4>
+                <p>Přinášíme transparentnost na trh s ojetými vozy pomocí umělé inteligence. Analyzujeme inzeráty, abyste vy mohli dělat lepší rozhodnutí.</p>
+                <div class="social-links">
+                    <a href="https://t.me/artifexialabs" target="_blank" class="social-icon telegram" aria-label="Telegram"></a>
+                    <a href="https://www.facebook.com/people/Proklepniautocz/61578936179244/" target="_blank" class="social-icon facebook" aria-label="Facebook"></a>
+                </div>
+            </div>
+            <div class="footer-links-section">
+                <h4>Navigace</h4>
+                <ul>
+                    <li><a href="/" class="footer-link">Hlavní stránka</a></li>
+                    <li><a href="/about.html" class="footer-link">O nás</a></li>
+                    <li><a href="/legal.html" class="footer-link">Právní ujednání</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-section">
+                <h4>Kontakt</h4>
+                <ul>
+                    <li><a href="mailto:info@proklepniauto.cz" class="footer-link">Obecné dotazy</a></li>
+                    <li><a href="mailto:support@proklepniauto.cz" class="footer-link">Podpora</a></li>
+                    <li><a href="mailto:media@proklepniauto.cz" class="footer-link">Média a tisk</a></li>
+                    <li><a href="mailto:obchod@proklepniauto.cz" class="footer-link">Spolupráce</a></li>
+                    <li><a href="mailto:fakturace@proklepniauto.cz" class="footer-link">Fakturace</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <p>&copy; 2025 Artifexia Labs. Všechna práva vyhrazena.</p>
+        </div>
+    </footer>
 </body>
 </html>

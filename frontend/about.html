@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>O nás - proklepniauto.cz</title>
+    <link rel="stylesheet" href="/styles/index.css">
+    <style>
+        .about-header {
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: var(--border-radius-lg);
+            background-color: var(--card-background);
+            margin-bottom: 40px;
+        }
+        .about-header h1 {
+            font-size: 3rem;
+            color: var(--text-color);
+            margin: 0;
+        }
+        .about-header p {
+            font-size: 1.2rem;
+            color: var(--subtle-text);
+            max-width: 700px;
+            margin: 15px auto 0 auto;
+        }
+        .about-section {
+            background-color: var(--card-background);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 30px;
+        }
+        .about-section h2 {
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .grid-icon {
+            font-size: 4rem;
+            text-align: center;
+            line-height: 1;
+        }
+        .cta-section {
+            text-align: center;
+            padding: 60px 40px;
+            background-color: #1c1c1e;
+            color: white;
+            border-radius: var(--border-radius-lg);
+        }
+        .cta-section h2 {
+            font-size: 2.2rem;
+            margin: 0 0 15px 0;
+        }
+        .cta-section p {
+            margin: 0 0 30px 0;
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 16px 32px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: var(--border-radius-md);
+            transition: all 0.3s ease;
+        }
+        .cta-button:hover {
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .about-grid { grid-template-columns: 1fr; }
+            .about-header h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="about-header">
+            <h1>Měníme způsob, jakým kupujete ojetá auta</h1>
+            <p>Naším cílem je nahradit nejistotu a stres z nákupu vozu jistotou a informovaným rozhodnutím.</p>
+        </div>
+
+        <div class="about-section">
+            <h2>Problém: Informační chaos</h2>
+            <div class="about-grid">
+                <div class="grid-icon">🤯</div>
+                <div>
+                    <p>Trh s ojetými vozy je nepřehledná džungle. Tisíce inzerátů, skryté vady, neúplné informace a marketingové triky. Pro běžného člověka je téměř nemožné se v tom vyznat a odhalit, která nabídka je skutečně výhodná a která je jen past na peníze.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2>Naše řešení: Síla umělé inteligence</h2>
+            <div class="about-grid">
+                <div>
+                    <p>Proto jsme vytvořili <strong>proklepniauto.cz</strong>. Naše platforma, vyvinutá pod hlavičkou projektu <strong>Artifexia Labs</strong>, využívá pokročilé modely umělé inteligence k automatické analýze inzerátů. Během několika sekund pro vás AI projde veškeré informace, identifikuje potenciální rizika, zhodnotí cenu a poskytne vám objektivní souhrn. Šetříme váš čas, nervy a především peníze.</p>
+                </div>
+                <div class="grid-icon">🤖</div>
+            </div>
+        </div>
+
+        <div class="about-section">
+            <h2>Jak to funguje?</h2>
+            <p>Náš systém se neustále učí z tisíců inzerátů. Dokáže rozpoznat varovné signály v popisu, porovnat výbavu s cenou, odhadnout reálnou tržní hodnotu a připravit pro vás klíčové otázky, na které se zeptat prodejce. Jsme váš nestranný digitální poradce, který stojí vždy na vaší straně.</p>
+        </div>
+
+        <div class="cta-section">
+            <h2>Připraveni na chytřejší nákup?</h2>
+            <p>Vložte odkaz na svůj první inzerát a přesvědčte se sami.</p>
+            <a href="/" class="cta-button">Analyzovat auto hned teď</a>
+        </div>
+
+    </div>
+    
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <h4>🚗 proklepniauto.cz</h4>
+                <p>Přinášíme transparentnost na trh s ojetými vozy pomocí umělé inteligence. Analyzujeme inzeráty, abyste vy mohli dělat lepší rozhodnutí.</p>
+                <div class="social-links">
+                    <a href="https://t.me/artifexialabs" target="_blank" class="social-icon telegram" aria-label="Telegram"></a>
+                    <a href="https://www.facebook.com/people/Proklepniautocz/61578936179244/" target="_blank" class="social-icon facebook" aria-label="Facebook"></a>
+                </div>
+            </div>
+            <div class="footer-links-section">
+                <h4>Navigace</h4>
+                <ul>
+                    <li><a href="/" class="footer-link">Hlavní stránka</a></li>
+                    <li><a href="/about.html" class="footer-link">O nás</a></li>
+                    <li><a href="/legal.html" class="footer-link">Právní ujednání</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-section">
+                <h4>Kontakt</h4>
+                <ul>
+                    <li><a href="mailto:info@proklepniauto.cz" class="footer-link">Obecné dotazy</a></li>
+                    <li><a href="mailto:support@proklepniauto.cz" class="footer-link">Podpora</a></li>
+                    <li><a href="mailto:media@proklepniauto.cz" class="footer-link">Média a tisk</a></li>
+                    <li><a href="mailto:obchod@proklepniauto.cz" class="footer-link">Spolupráce</a></li>
+                    <li><a href="mailto:fakturace@proklepniauto.cz" class="footer-link">Fakturace</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <p>&copy; 2025 Artifexia Labs. Všechna práva vyhrazena.</p>
+        </div>
+    </footer>
+</body>
+</html>
