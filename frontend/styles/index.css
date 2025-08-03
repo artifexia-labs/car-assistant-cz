@@ -1,7 +1,7 @@
 /* ---
-   Soubor: index.css
-   Popis: Kompletní redesign stylů pro proklepniauto.cz
-   Verze: 2.1 - Vylepšený footer a sociální ikony
+    Soubor: index.css
+    Popis: Kompletní redesign stylů pro proklepniauto.cz
+    Verze: 2.3 - Vylepšený design formuláře
 --- */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -62,6 +62,53 @@ textarea, input[type="url"] { width: 100%; padding: 18px; font-size: 1rem; font-
 textarea { min-height: 120px; }
 textarea:focus, input[type="url"]:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15); background-color: var(--card-background); }
 
+/* --- Vylepšené přepínače (Segmented Controls) --- */
+.form-options-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.control-group .control-label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-color);
+    flex-shrink: 0;
+}
+.segmented-control {
+    display: flex;
+    background-color: #f0f2f5;
+    border-radius: var(--border-radius-md);
+    padding: 5px;
+    width: 100%;
+    border: 1px solid var(--border-color);
+}
+.segmented-control input[type="radio"] {
+    display: none;
+}
+.segmented-control label {
+    flex: 1;
+    text-align: center;
+    padding: 12px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    font-weight: 600;
+    color: var(--subtle-text);
+    font-size: 0.95rem;
+}
+.segmented-control input[type="radio"]:checked + label {
+    background-color: var(--card-background);
+    color: var(--primary-color);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0,0,0,0.05);
+    transform: scale(1.02);
+}
+
 /* --- Tlačítka --- */
 .main-form button { width: 100%; padding: 18px; font-size: 1.1rem; font-weight: 700; background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-md); cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 12px; }
 .main-form button:disabled { background: #a9ccee; cursor: not-allowed; transform: none; }
@@ -89,7 +136,7 @@ textarea:focus, input[type="url"]:focus { outline: none; border-color: var(--pri
 .details-section h4 { font-size: 1.1rem; margin-bottom: 15px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px; color: var(--text-color); }
 .details-section ul { list-style: none; padding-left: 0; margin: 0; }
 .details-section ul li { display: flex; align-items: flex-start; font-size: 1rem; margin-bottom: 12px; line-height: 1.5; gap: 12px; }
-.details-section .icon { font-size: 18px; line-height: 1.5; }
+.details-section .icon { font-size: 18px; line-height: 1.5; color: var(--primary-color); }
 .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 25px; }
 .verdict { background-color: #e3f2fd; padding: 20px; border-radius: 12px; border-left: 4px solid var(--primary-color); }
 .price-evaluation-header { border-bottom: 1px solid var(--border-color); }
@@ -190,4 +237,6 @@ textarea:focus, input[type="url"]:focus { outline: none; border-color: var(--pri
     .details-grid, .factors-grid { grid-template-columns: 1fr; }
     .footer-container { grid-template-columns: 1fr; text-align: center; }
     .social-links { justify-content: center; }
+    .control-group { flex-direction: column; align-items: stretch; }
+    .control-group .control-label { width: auto; margin-bottom: 8px; text-align: center; }
 }

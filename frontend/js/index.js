@@ -2,7 +2,7 @@
  * Soubor: index.js
  * Popis: Kompletní klientská logika pro Car Assistant CZ, včetně přepínání záložek,
  * volání API a dynamického zobrazování výsledků pro všechny tři funkce.
- * Verze: 2.0 (Kompletní a vylepšená)
+ * Verze: 2.2 - Vylepšená logika a design formuláře
  */
 document.addEventListener('DOMContentLoaded', () => {
     // --- ZÁKLADNÍ NASTAVENÍ A VÝBĚR ELEMENTŮ ---
@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const tabs = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
+    const originalButtonTextContent = `<span class="button-icon">🚀</span> Najít nejlepší nabídky`;
 
     // --- PŘEPÍNÁNÍ ZÁLOŽEK ---
     tabs.forEach(tab => {
@@ -38,30 +39,49 @@ document.addEventListener('DOMContentLoaded', () => {
         button.disabled = false;
         button.innerHTML = originalButtonText;
     }
-
+    
     // =========================================================================
-    // === 1. LOGIKA PRO ZÁLOŽKU "HLEDÁNÍ OJEtÉHO VOZU" ===
+    // === 1. LOGIKA PRO ZÁLOŽKU "CHYTRÉ HLEDÁNÍ" ===
     // =========================================================================
     const searchForm = document.getElementById('car-search-form');
     if (searchForm) {
         const searchSubmitButton = document.getElementById('submit-button');
         const searchResultsDiv = document.getElementById('results');
         const queryTextarea = document.getElementById('user-query');
+        const platformRadios = document.querySelectorAll('input[name="search-platform"]');
+        const sautoOptionsContainer = document.getElementById('sauto-options-container');
         let loadingInterval;
 
         const loadingMessages = {
-            v2: ["Identifikuji klíčové modely...", "Připravuji cílené vyhledávání...", "Skenuji nabídky...", "Filtruji nejlepší kusy..."],
-            v3: ["Analyzuji váš požadavek...", "Prohledávám širokou nabídku vozů...", "Porovnávám ceny a parametry...", "Hledám skryté klenoty na trhu..."]
+            sauto_v2: ["Identifikuji klíčové modely...", "Připravuji cílené vyhledávání...", "Skenuji Sauto.cz...", "Filtruji nejlepší kusy..."],
+            sauto_v3: ["Analyzuji váš požadavek...", "Prohledávám Sauto.cz...", "Porovnávám ceny a parametry...", "Hledám skryté klenoty..."],
+            bazos: ["Prohledávám Bazos.cz...", "Analyzuji nalezené vozy...", "Generuji report...", "Chvilku strpení..."]
         };
 
-        const searchModeSelectorHTML = `
-            <div class="search-mode-selector">
-                <input type="radio" id="mode-v2" name="search-mode" value="v2">
-                <label for="mode-v2">🎯 Focus v2</label>
-                <input type="radio" id="mode-v3" name="search-mode" value="v3" checked>
-                <label for="mode-v3">🔬 Deep Scan v3</label>
+        const sautoModeSelectorHTML = `
+            <div class="control-group">
+                <span class="control-label">Režim</span>
+                <div class="segmented-control">
+                    <input type="radio" id="mode-v2" name="search-mode" value="v2">
+                    <label for="mode-v2">🎯 Focus v2</label>
+                    <input type="radio" id="mode-v3" name="search-mode" value="v3" checked>
+                    <label for="mode-v3">🔬 Deep Scan v3</label>
+                </div>
             </div>`;
-        searchSubmitButton.insertAdjacentHTML('beforebegin', searchModeSelectorHTML);
+        
+        function toggleSautoOptions() {
+            const selectedPlatform = document.querySelector('input[name="search-platform"]:checked').value;
+            if (selectedPlatform === 'sauto') {
+                sautoOptionsContainer.innerHTML = sautoModeSelectorHTML;
+                sautoOptionsContainer.style.display = 'block';
+            } else {
+                sautoOptionsContainer.innerHTML = '';
+                sautoOptionsContainer.style.display = 'none';
+            }
+        }
+        
+        platformRadios.forEach(radio => radio.addEventListener('change', toggleSautoOptions));
+        toggleSautoOptions(); // Initial call to set state
 
         searchForm.addEventListener('submit', async (event) => {
             event.preventDefault();
@@ -71,12 +91,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const selectedMode = document.querySelector('input[name="search-mode"]:checked').value;
-            const functionName = selectedMode === 'v3' ? 'analyze-request-v3-experimental' : 'analyze-request-v2';
-            const currentLoadingMessages = loadingMessages[selectedMode];
-
             searchSubmitButton.disabled = true;
             searchResultsDiv.innerHTML = '';
+            clearInterval(loadingInterval);
+
+            const selectedPlatform = document.querySelector('input[name="search-platform"]:checked').value;
+            let functionName;
+            let body;
+            let currentLoadingMessages;
+
+            if (selectedPlatform === 'sauto') {
+                const selectedMode = document.querySelector('input[name="search-mode"]:checked').value;
+                functionName = selectedMode === 'v3' ? 'analyze-request-v3-experimental' : 'analyze-request-v2';
+                currentLoadingMessages = loadingMessages[selectedMode === 'v3' ? 'sauto_v3' : 'sauto_v2'];
+                body = { userQuery };
+            } else { // bazos
+                functionName = 'master-pipeline';
+                currentLoadingMessages = loadingMessages.bazos;
+                body = { query: userQuery };
+            }
 
             let messageIndex = 0;
             const updateLoadingMessage = () => {
@@ -87,23 +120,32 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingInterval = setInterval(updateLoadingMessage, 3500);
 
             try {
-                const { data, error } = await supabaseClient.functions.invoke(functionName, { body: { userQuery } });
+                const { data, error } = await supabaseClient.functions.invoke(functionName, { body });
 
                 if (error) throw error;
                 if (!data) throw new Error("Server nevrátil žádná data.");
                 
-                const resultsHTML = generateResultsHTML(data);
-                finalizeAction(searchSubmitButton, searchResultsDiv, 'Analyzovat nabídky', resultsHTML);
+                let resultsHTML;
+                if (selectedPlatform === 'sauto') {
+                    resultsHTML = generateSautoResultsHTML(data);
+                } else {
+                    if (!Array.isArray(data)) {
+                        throw new Error("Odpověď serveru pro Bazos.cz není ve správném formátu.");
+                    }
+                    resultsHTML = generateBazosResultsHTML(data);
+                }
+                finalizeAction(searchSubmitButton, searchResultsDiv, originalButtonTextContent, resultsHTML);
 
             } catch (err) {
-                finalizeAction(searchSubmitButton, searchResultsDiv, 'Analyzovat nabídky', null, err.message);
+                console.error(err);
+                finalizeAction(searchSubmitButton, searchResultsDiv, originalButtonTextContent, null, `Chyba při komunikaci se serverem: ${err.message}`);
             } finally {
                 clearInterval(loadingInterval);
             }
         });
     }
     
-    function generateResultsHTML(data) {
+    function generateSautoResultsHTML(data) {
         let html = '';
         if (data.summary_message) {
             html += `<div class="summary-message"><strong>Celkové shrnutí:</strong><br>${data.summary_message}</div>`;
@@ -123,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             html += `
                 <div class="car-card">
-                    <div class="rank-badge">#${index + 1} Nejlepší nabídka</div>
+                    <div class="rank-badge">#${index + 1} Nejlepší nabídka (Sauto.cz)</div>
                     ${images_html}
                     <div class="car-content-wrapper">
                         <div class="car-title">
@@ -133,6 +175,61 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${car.vin ? `<div class="vin-code"><strong>VIN:</strong> ${car.vin}</div>` : ''}
                         <p class="car-summary">${car.summary_cz}</p>
                         ${car.final_verdict_cz ? `<div class="details-section verdict"><h4>Verdikt AI</h4><p>${car.final_verdict_cz.replace(/\n/g, '<br>')}</p></div>` : ''}
+                        <div class="details-grid">
+                            <div class="details-section pros"><h4>Klady</h4><ul>${pros_html}</ul></div>
+                            <div class="details-section cons"><h4>Rizika a zápory</h4><ul>${cons_html}</ul></div>
+                        </div>
+                        <div class="details-section questions">
+                            <h4>Doporučené otázky pro prodejce</h4>
+                            <ul>${questions_html}</ul>
+                        </div>
+                    </div>
+                </div>`;
+        });
+        return html;
+    }
+
+    function generateBazosResultsHTML(results) {
+        if (!results || results.length === 0) {
+            return '<div class="summary-message">Pro váš dotaz nebyly na Bazos.cz nalezeny žádné vhodné inzeráty.</div>';
+        }
+        let html = '';
+        results.forEach((result, index) => {
+            if (!result || !result.analysis) return;
+
+            const analysis = result.analysis;
+            const summary = analysis.vehicle_summary;
+            const pros_html = analysis.analysis.pros.map(pro => `<li><span class="icon">✅</span>${pro}</li>`).join('');
+            const cons_html = analysis.analysis.cons.map(con => `<li><span class="icon">❌</span>${con}</li>`).join('');
+            const questions_html = analysis.analysis.questions_for_seller.map(q => `<li><span class="icon">❓</span>${q}</li>`).join('');
+            const images_html = result.imageUrls && result.imageUrls.length > 0 ? `<div class="car-gallery">${result.imageUrls.slice(0, 3).map(img => `<img src="${img}" alt="${result.title}" class="car-gallery-image">`).join('')}</div>` : '';
+            
+            let details_html = '';
+            let price = '';
+            if (summary && summary.details) {
+               details_html = Object.entries(summary.details).map(([key, value]) => {
+                   if (key.toLowerCase() === 'cena') {
+                       price = value;
+                       return ''; // Don't add price to details list
+                   }
+                   return `<li><span class="icon">🔧</span><strong>${key}:</strong> ${value || 'N/A'}</li>`;
+               }).join('');
+            }
+
+            html += `
+                <div class="car-card">
+                    <div class="rank-badge">#${index + 1} Doporučení (Bazos.cz)</div>
+                    ${images_html}
+                    <div class="car-content-wrapper">
+                        <div class="car-title">
+                            <h3><a href="${result.url}" target="_blank" rel="noopener noreferrer">${result.title}</a></h3>
+                            <div class="car-price">${price}</div>
+                        </div>
+                         ${summary && summary.general_model_info ? `<div class="car-summary"><strong>Obecné info o modelu:</strong> ${summary.general_model_info}</div>` : ''}
+                         <div class="details-section">
+                            <h4>Technické parametry</h4>
+                            <ul>${details_html}</ul>
+                        </div>
                         <div class="details-grid">
                             <div class="details-section pros"><h4>Klady</h4><ul>${pros_html}</ul></div>
                             <div class="details-section cons"><h4>Rizika a zápory</h4><ul>${cons_html}</ul></div>
@@ -160,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
         adAnalysisForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const adUrl = adUrlInputForAnalysis.value.trim();
-            if (!adUrl || !adUrl.includes('sauto.cz')) {
+            if (!adUrl || !adUrl.includes('sauto.cz')) { // Tuto validaci bude možná potřeba upravit pro více platforem
                 alert('Prosím, vložte platný odkaz na inzerát z Sauto.cz.');
                 return;
             }
@@ -173,9 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { data, error } = await supabaseClient.functions.invoke('analyze-ad-by-url', { body: { adUrl } });
                 if (error) throw error;
                 const analysisHTML = generateAdAnalysisHTML(data);
-                finalizeAction(analyzeAdButton, adResultsDiv, 'Analyzovat inzerát', analysisHTML);
+                finalizeAction(analyzeAdButton, adResultsDiv, '<span class="button-icon">🔬</span> Analyzovat inzerát', analysisHTML);
             } catch (err) {
-                finalizeAction(analyzeAdButton, adResultsDiv, 'Analyzovat inzerát', null, err.message);
+                finalizeAction(analyzeAdButton, adResultsDiv, '<span class="button-icon">🔬</span> Analyzovat inzerát', null, err.message);
             }
         });
     }
@@ -218,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         priceEvaluationForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             const adUrl = priceAdUrlInput.value.trim();
-            if (!adUrl || !adUrl.includes('sauto.cz')) {
+            if (!adUrl || !adUrl.includes('sauto.cz')) { // Tuto validaci bude možná potřeba upravit pro více platforem
                 alert('Prosím, vložte platný odkaz na inzerát z Sauto.cz.');
                 return;
             }
@@ -231,9 +328,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { data, error } = await supabaseClient.functions.invoke('evaluate-price-by-url', { body: { adUrl } });
                 if (error) throw error;
                 const priceHTML = generatePriceEvaluationHTML(data);
-                finalizeAction(evaluatePriceButton, priceResultsDiv, 'Ocenit vozidlo', priceHTML);
+                finalizeAction(evaluatePriceButton, priceResultsDiv, '<span class="button-icon">💸</span> Ocenit vozidlo', priceHTML);
             } catch (err) {
-                finalizeAction(evaluatePriceButton, priceResultsDiv, 'Ocenit vozidlo', null, err.message);
+                finalizeAction(evaluatePriceButton, priceResultsDiv, '<span class="button-icon">💸</span> Ocenit vozidlo', null, err.message);
             }
         });
     }

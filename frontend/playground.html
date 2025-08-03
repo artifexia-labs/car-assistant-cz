@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Авто-Аналитик</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #282c34; color: #abb2bf; padding: 20px; line-height: 1.6; }
+        .main-container { max-width: 1200px; margin: 20px auto; }
+        .section { margin-bottom: 30px; padding: 25px; border-radius: 8px; background: #21252b; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        input[type="text"] { width: 95%; padding: 12px; font-size: 16px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #3c4048; background: #282c34; color: #abb2bf; }
+        button { padding: 15px 20px; font-size: 18px; font-weight: bold; cursor: pointer; border: none; border-radius: 5px; background: #98c379; color: #21252b; transition: background-color 0.2s ease; display: block; width: 100%; }
+        button:disabled { background: #4a5058; cursor: not-allowed; }
+        h1, h2, h3 { border-bottom: 2px solid #61afef; padding-bottom: 8px; }
+        .status { text-align: center; margin-top: 15px; font-style: italic; color: #5c6370; }
+        .error { color: #e06c75; font-weight: bold; white-space: pre-wrap; }
+        .result-card { border: 1px solid #3c4048; border-radius: 8px; margin-bottom: 30px; overflow: hidden; }
+        .result-header { background-color: #3a3f4b; padding: 15px; font-size: 1.4em; font-weight: bold; }
+        .result-header a { color: #61afef; text-decoration: none; }
+        .result-content { display: flex; flex-wrap: wrap; padding: 20px; }
+        .left-panel { flex: 1; min-width: 400px; padding-right: 20px; border-right: 1px solid #3c4048;}
+        .right-panel { flex: 1.5; min-width: 400px; padding-left: 20px;}
+        .image-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-bottom: 20px; }
+        .image-gallery img { width: 100%; height: 90px; object-fit: cover; border-radius: 4px; }
+        .details-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .details-table td { padding: 8px; border-bottom: 1px solid #3c4048; }
+        .details-table td:first-child { font-weight: bold; color: #9da5b4; }
+        .analysis-section { margin-bottom: 20px; }
+        .analysis-section h4 { color: #98c379; margin-top: 0; }
+        .analysis-section ul { padding-left: 20px; margin: 0; }
+        .analysis-section li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <h1>🚀 AI Авто-Аналитик</h1>
+        <div class="section">
+            <h2>Vyhledávání</h2>
+            <p>Napište, co hledáte (např. "rychlé spolehlivé auto do 500 tisíc"), a AI najde a zanalyzuje 3 nejlepší nabídky.</p>
+            <input type="text" id="queryInput" placeholder="Např. 'spolehlivé kombi pro rodinu'">
+            <button id="fullAnalysisButton">Najít a analyzovat</button>
+        </div>
+        <div id="output-container">
+            <p class="status">Zde se objeví report pro 3 nejlepší vozy...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const SUPABASE_URL = 'https://zmwnzxypbhjpqwlgyvxi.supabase.co'; 
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inptd256eHlwYmhqcHF3bGd5dnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMxNzY2ODAsImV4cCI6MjA2ODc1MjY4MH0.uQGr43bqoPGvfbnnU14sDGfHQLGqcSt-UP4rIJQCU80';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const queryInput = document.getElementById('queryInput');
+        const fullAnalysisButton = document.getElementById('fullAnalysisButton');
+        const outputContainer = document.getElementById('output-container');
+
+        fullAnalysisButton.addEventListener('click', async () => {
+            const query = queryInput.value;
+            if (!query) return;
+            
+            fullAnalysisButton.disabled = true;
+            outputContainer.innerHTML = '<p class="status">Spouštím kompletní analýzu... Může to trvat až 2 minuty, prosím vyčkejte.</p>';
+            
+            try {
+                const { data, error } = await supabase.functions.invoke('master-pipeline', { 
+                    body: { query } 
+                });
+
+                if (error) throw error;
+                if (!Array.isArray(data)) {
+                    throw new Error("Funkce nevrátila očekávaný seznam. Odpověď od serveru: " + JSON.stringify(data));
+                }
+                displayResults(data);
+
+            } catch(error) {
+                outputContainer.innerHTML = `<p class="error">Došlo k chybě: ${error.message}</p>`;
+            } finally {
+                fullAnalysisButton.disabled = false;
+            }
+        });
+
+        function displayResults(results) {
+            outputContainer.innerHTML = '';
+            if (!results || results.length === 0) {
+                outputContainer.innerHTML = '<p class="status">Nepodařilo se nalézt vhodné inzeráty k analýze.</p>';
+                return;
+            }
+            results.forEach((result, index) => {
+                if (!result || !result.analysis) return;
+                const card = document.createElement('div');
+                card.className = 'result-card';
+
+                const analysis = result.analysis;
+                const summary = analysis.vehicle_summary;
+                const pros = analysis.analysis.pros;
+                const cons = analysis.analysis.cons;
+                const questions = analysis.analysis.questions_for_seller;
+
+                card.innerHTML = `
+                    <div class="result-header">
+                        <a href="${result.url}" target="_blank">${index + 1}. ${result.title}</a>
+                    </div>
+                    <div class="result-content">
+                        <div class="left-panel">
+                            <h3>Technický přehled</h3>
+                            <div class="image-gallery">
+                                ${result.imageUrls.map(url => `<img src="${url}" alt="Fotka vozu">`).join('') || '<p>Žádné fotografie</p>'}
+                            </div>
+                            <table class="details-table">
+                                ${Object.entries(summary.details).map(([key, value]) => `<tr><td>${key}</td><td>${value}</td></tr>`).join('')}
+                            </table>
+                            <h4>O modelu</h4>
+                            <p>${summary.general_model_info}</p>
+                        </div>
+                        <div class="right-panel">
+                             <div class="analysis-section">
+                                <h4>✅ Klady</h4>
+                                <ul>${pros.map(item => `<li>${item}</li>`).join('')}</ul>
+                            </div>
+                             <div class="analysis-section">
+                                <h4>❌ Zápory a rizika</h4>
+                                <ul>${cons.map(item => `<li>${item}</li>`).join('')}</ul>
+                            </div>
+                             <div class="analysis-section">
+                                <h4>❓ Otázky pro prodejce</h4>
+                                <ul>${questions.map(item => `<li>${item}</li>`).join('')}</ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                outputContainer.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -66,8 +66,21 @@
             <div class="tab-content-wrapper">
                 <div class="tab-content active" id="search-tab">
                     <h2>Nechte AI najít auto za vás</h2>
-                    <p>Popište, co hledáte. AI prohledá Sauto.cz a vybere ty nejlepší nabídky přesně pro vás.</p>
+                    <p>Popište, co hledáte. AI prohledá vybranou platformu a vybere ty nejlepší nabídky přesně pro vás.</p>
                     <form id="car-search-form" class="main-form">
+                        <div class="form-options-wrapper">
+                            <div class="control-group">
+                                <span class="control-label">Platforma</span>
+                                <div class="segmented-control">
+                                    <input type="radio" id="platform-sauto" name="search-platform" value="sauto" checked>
+                                    <label for="platform-sauto">Sauto.cz</label>
+                                    <input type="radio" id="platform-bazos" name="search-platform" value="bazos">
+                                    <label for="platform-bazos">Bazos.cz</label>
+                                </div>
+                            </div>
+                            <div id="sauto-options-container">
+                                </div>
+                        </div>
                         <textarea id="user-query" placeholder='Např. "Hledám spolehlivé auto pro rodinu s dětmi do 250 000 Kč, s velkým kufrem a nízkou spotřebou. Jezdíme hlavně po městě."'></textarea>
                         <button type="submit" id="submit-button">
                             <span class="button-icon">🚀</span> Najít nejlepší nabídky
