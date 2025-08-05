@@ -55,11 +55,7 @@
                 </button>
                 <button class="tab-button" data-tab="analysis-tab">
                     <span class="tab-icon">🔍</span>
-                    <span class="tab-text">Hloubková Analýza</span>
-                </button>
-                <button class="tab-button" data-tab="price-evaluation-tab">
-                    <span class="tab-icon">💰</span>
-                    <span class="tab-text">Ocenění Vozu</span>
+                    <span class="tab-text">Analýza & Ocenění</span>
                 </button>
             </div>
 
@@ -90,28 +86,17 @@
                 </div>
 
                 <div class="tab-content" id="analysis-tab">
-                    <h2>Odhalte všechna tajemství inzerátu</h2>
-                    <p>Vložte odkaz na inzerát a AI odhalí skryté vady, klady a připraví vám otázky na prodejce.</p>
+                    <h2>Kompletní prověření vozu z odkazu</h2>
+                    <p>Vložte odkaz na inzerát. AI odhalí klady, zápory, férovou cenu a připraví otázky na prodejce.</p>
                     <form id="ad-analysis-form" class="main-form">
                         <input type="url" id="ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
                         <button type="submit" id="analyze-ad-button">
-                            <span class="button-icon">🔬</span> Analyzovat inzerát
+                            <span class="button-icon">🔬</span> Prověřit a Ocenit
                         </button>
                     </form>
                     <div id="ad-results"></div>
                 </div>
 
-                <div class="tab-content" id="price-evaluation-tab">
-                    <h2>Zjistěte skutečnou cenu vozu</h2>
-                    <p>Nenechte se napálit. AI odhadne férovou tržní cenu a dá vám argumenty pro vyjednávání.</p>
-                    <form id="price-evaluation-form" class="main-form">
-                        <input type="url" id="price-ad-url" placeholder="https://www.sauto.cz/osobni/detail/..." required>
-                        <button type="submit" id="evaluate-price-button">
-                            <span class="button-icon">💸</span> Ocenit vozidlo
-                        </button>
-                    </form>
-                    <div id="price-evaluation-results"></div>
-                </div>
             </div>
         </main>
     </div>

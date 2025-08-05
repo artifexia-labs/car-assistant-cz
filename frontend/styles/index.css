@@ -226,6 +226,127 @@ textarea:focus, input[type="url"]:focus { outline: none; border-color: var(--pri
     color: #6e6e73;
     font-size: 14px;
 }
+/* --- Nové styly pro zobrazení výsledků v mřížce --- */
+
+.car-card-new {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 40px;
+    overflow: hidden;
+    background-color: var(--card-background);
+    box-shadow: var(--shadow);
+}
+
+.car-card-new .rank-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 15px;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-block;
+    border-bottom-right-radius: var(--border-radius-lg);
+}
+
+.result-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1px;
+    background-color: var(--border-color);
+}
+
+.grid-quadrant {
+    background-color: var(--card-background);
+    padding: 25px;
+}
+
+.grid-quadrant h4 {
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f2f5;
+}
+
+/* Styly pro jednotlivé kvadranty */
+.quadrant-images .car-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.quadrant-images .car-gallery-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--border-radius-md);
+}
+
+.quadrant-info .car-title-new {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.quadrant-info .car-title-new a {
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.quadrant-info .car-title-new a:hover {
+    color: var(--primary-color);
+}
+.quadrant-info .car-price-new {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.quadrant-info .details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.quadrant-info .details-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f2f5;
+    font-size: 0.95rem;
+}
+
+.quadrant-verdict p {
+    line-height: 1.6;
+    font-style: italic;
+    color: var(--subtle-text);
+}
+.quadrant-verdict .pros-list, .quadrant-cons .cons-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.quadrant-verdict .pros-list li, .quadrant-cons .cons-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+.quadrant-verdict .icon, .quadrant-cons .icon {
+    font-size: 18px;
+    color: var(--primary-color);
+}
+.quadrant-cons .icon {
+    color: #ff3b30;
+}
+
+
+/* --- Responzivní design pro mřížku --- */
+@media (max-width: 900px) {
+    .result-grid-layout {
+        grid-template-columns: 1fr; /* Jeden sloupec na mobilu */
+    }
+}
 
 /* --- Responzivní design --- */
 @media (max-width: 768px) {

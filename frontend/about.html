@@ -33,14 +33,28 @@
         .about-header p { font-size: 1.2rem; color: var(--subtle-text); max-width: 700px; margin: 15px auto 0 auto; }
         .about-section { background-color: var(--card-background); padding: 40px; border-radius: var(--border-radius-lg); margin-bottom: 30px; }
         .about-section h2 { font-size: 2rem; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 15px; }
-        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
-        .grid-icon { font-size: 4rem; text-align: center; line-height: 1; }
+        .about-section p { line-height: 1.7; }
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+        .grid-icon { font-size: 3rem; text-align: center; line-height: 1; margin-bottom: 15px; }
+        .mission-vision-item h3 { font-size: 1.5rem; margin-bottom: 10px; }
+
+        /* NOVÉ STYLY PRO SEKCI "JAK TO FUNGUJE" */
+        .how-it-works-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; margin-top: 30px; }
+        .how-it-works-item { background-color: var(--background-color); padding: 25px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); text-align: center; }
+        .how-it-works-item h3 { margin-top: 0; font-size: 1.2rem; color: var(--primary-color); }
+        .how-it-works-item p { font-size: 0.95rem; color: var(--subtle-text); }
+        .how-it-works-icon { font-size: 2.5rem; margin-bottom: 15px; }
+
         .cta-section { text-align: center; padding: 60px 40px; background-color: #1c1c1e; color: white; border-radius: var(--border-radius-lg); }
         .cta-section h2 { font-size: 2.2rem; margin: 0 0 15px 0; }
         .cta-section p { margin: 0 0 30px 0; color: #a0a0a0; font-size: 1.1rem; }
         .cta-button { display: inline-block; padding: 16px 32px; background-color: var(--primary-color); color: white; text-decoration: none; font-weight: 600; border-radius: var(--border-radius-md); transition: all 0.3s ease; }
         .cta-button:hover { background-color: var(--primary-dark); transform: scale(1.05); }
-        @media (max-width: 768px) { .about-grid { grid-template-columns: 1fr; } .about-header h1 { font-size: 2.5rem; } }
+
+        @media (max-width: 768px) {
+            .about-grid { grid-template-columns: 1fr; }
+            .about-header h1 { font-size: 2.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -51,36 +65,54 @@
         </div>
 
         <div class="about-section">
-            <h2>Problém: Informační chaos</h2>
-            <div class="about-grid">
-                <div class="grid-icon">🤯</div>
-                <div>
-                    <p>Trh s ojetými vozy je nepřehledná džungle. Tisíce inzerátů, skryté vady, neúplné informace a marketingové triky. Pro běžného člověka je téměř nemožné se v tom vyznat a odhalit, která nabídka je skutečně výhodná a která je jen past na peníze.</p>
+            <h2>Proč proklepniauto.cz? Protože jsme viděli tu potřebu.</h2>
+            <p>Nápad na tento projekt se nezrodil na poradě v zasedačce, ale při procházení stovek inzerátů na českých portálech. Když jsem pomáhal známým hledat auto, znovu a znovu jsem narážel na stejný problém: nepřehledná džungle informací, podezřele výhodné nabídky a popisky, které často více skrývaly, než odhalovaly.</p>
+            <p>Jako studenta IT a nadšence do umělé inteligence mě napadlo: Proč nevyužít technologii k tomu, aby vnesla do tohoto chaosu řád? Proč by nemohl existovat nástroj, který by každému – i bez hlubokých znalostí aut – poskytl objektivní a rychlý pohled na jakýkoliv inzerát? A tak vzniklo proklepniauto.cz, vyvíjené pod hlavičkou projektu <strong>Artifexia Labs</strong>. Ne z obchodního plánu, ale z reálné potřeby, kterou jsme na českém trhu sami viděli.</p>
+        </div>
+
+        <div class="about-section">
+            <h2>Jak naše AI pracuje pod kapotou?</h2>
+            <p>Náš systém je váš nestranný digitální poradce. Neustále se učí z tisíců inzerátů a dokáže během pár sekund odhalit to, co by člověk zkoumal hodiny. Zaměřuje se především na:</p>
+            <div class="how-it-works-grid">
+                <div class="how-it-works-item">
+                    <div class="how-it-works-icon">🔍</div>
+                    <h3>Analýza textu</h3>
+                    <p>AI hledá podezřelé fráze, nesrovnalosti a chybějící důležité informace, jako je zmínka o servisní historii nebo původu vozu.</p>
+                </div>
+                <div class="how-it-works-item">
+                    <div class="how-it-works-icon">📊</div>
+                    <h3>Porovnání ceny a parametrů</h3>
+                    <p>Systém porovnává cenu s rokem výroby, nájezdem, výbavou a dalšími vozy na trhu, aby odhalil, zda je cena férová, nebo podezřele nízká.</p>
+                </div>
+                <div class="how-it-works-item">
+                    <div class="how-it-works-icon">❓</div>
+                    <h3>Příprava klíčových otázek</h3>
+                    <p>Na základě analýzy vám připraví seznam konkrétních a cílených otázek, které byste měli položit prodejci, abyste si ověřili stav vozu.</p>
                 </div>
             </div>
         </div>
 
         <div class="about-section">
-            <h2>Naše řešení: Síla umělé inteligence</h2>
+            <h2>Naše mise a vize</h2>
             <div class="about-grid">
-                <div>
-                    <p>Proto jsme vytvořili <strong>proklepniauto.cz</strong>. Naše platforma, vyvinutá pod hlavičkou projektu <strong>Artifexia Labs</strong>, využívá pokročilé modely umělé inteligence k automatické analýze inzerátů. Během několika sekund pro vás AI projde veškeré informace, identifikuje potenciální rizika, zhodnotí cenu a poskytne vám objektivní souhrn. Šetříme váš čas, nervy a především peníze.</p>
+                <div class="mission-vision-item">
+                    <div class="grid-icon">🎯</div>
+                    <h3>Naše mise</h3>
+                    <p>Učinit český trh s ojetými vozy nejtransparentnějším v Evropě. Chceme, aby každý kupující měl k dispozici ty nejlepší nástroje pro chytré a bezpečné rozhodnutí.</p>
                 </div>
-                <div class="grid-icon">🤖</div>
+                <div class="mission-vision-item">
+                    <div class="grid-icon">🚀</div>
+                    <h3>Naše vize</h3>
+                    <p>Věříme v budoucnost, kde AI slouží jako osobní asistent pro důležitá životní rozhodnutí. Nákup auta je jen začátek. Naším cílem je vyvíjet chytré pomocníky, kteří lidem šetří čas, peníze a nervy.</p>
+                </div>
             </div>
-        </div>
-
-        <div class="about-section">
-            <h2>Jak to funguje?</h2>
-            <p>Náš systém se neustále učí z tisíců inzerátů. Dokáže rozpoznat varovné signály v popisu, porovnat výbavu s cenou, odhadnout reálnou tržní hodnotu a připravit pro vás klíčové otázky, na které se zeptat prodejce. Jsme váš nestranný digitální poradce, který stojí vždy na vaší straně.</p>
         </div>
 
         <div class="cta-section">
             <h2>Připraveni na chytřejší nákup?</h2>
-            <p>Vložte odkaz na svůj první inzerát a přesvědčte se sami.</p>
+            <p>Vložte odkaz na svůj první inzerát a přesvědčte se sami, co naše AI dokáže.</p>
             <a href="/" class="cta-button">Analyzovat auto hned teď</a>
         </div>
-
     </div>
     
     <footer class="site-footer">
