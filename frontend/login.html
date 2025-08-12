@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Přihlášení - proklepniauto.cz</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./styles/auth.css">
+    <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <a href="/" class="auth-logo">🚗 proklepniauto.cz</a>
+            
+            <div id="main-auth-view">
+                <h2 id="form-title">Vítejte zpět!</h2>
+                <p class="form-description" id="form-description">Přihlaste se ke svému účtu.</p>
+
+                <form id="auth-form-email">
+                    <div class="input-wrapper">
+                        <span class="input-icon">✉️</span>
+                        <input type="email" id="email" required autocomplete="email" placeholder="vas@email.cz">
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" required autocomplete="current-password" placeholder="Heslo">
+                    </div>
+                    <div class="auth-options">
+                        <div></div> <a href="#" id="forgot-password-link">Zapomněli jste heslo?</a>
+                    </div>
+                    <button type="submit" id="submit-button-email" class="auth-button">Přihlásit se</button>
+                </form>
+
+                <div class="auth-divider"><span>Nebo</span></div>
+
+                <div class="social-auth-buttons">
+                    <button id="google-auth-button" class="social-button"><img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"><span>Google</span></button>
+                    <button id="facebook-auth-button" class="social-button"><img src="https://www.svgrepo.com/show/448224/facebook.svg" alt="Facebook"><span>Facebook</span></button>
+                </div>
+
+                <p class="auth-switch">
+                    <span id="switch-text">Ještě nemáte účet?</span>
+                    <a href="#" id="switch-link">Zaregistrujte se</a>
+                </p>
+            </div>
+
+            <div id="reset-password-view" class="hidden-form">
+                <h2>Obnovit heslo</h2>
+                <p class="form-description">Zadejte svůj email a my vám pošleme instrukce pro obnovu hesla.</p>
+
+                <form id="reset-password-form">
+                    <div class="input-wrapper">
+                         <span class="input-icon">✉️</span>
+                        <input type="email" id="reset-email" required autocomplete="email" placeholder="vas@email.cz">
+                    </div>
+                    <button type="submit" class="auth-button">Odeslat instrukce</button>
+                </form>
+
+                <p class="auth-switch">
+                    <a href="#" id="back-to-login-link">Zpět na přihlášení</a>
+                </p>
+            </div>
+            
+            <div id="auth-messages"></div>
+        </div>
+    </div>
+
+    <script src="./js/auth.js"></script>
+</body>
+</html>

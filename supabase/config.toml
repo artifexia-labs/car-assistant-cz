@@ -92,3 +92,31 @@ import_map = "import_map.json"
 
 [functions.sauto-master-pipeline]
 import_map = "import_map.json"
+
+[functions.meta-search-pipeline]
+import_map = "import_map.json"
+
+[functions.delete-user]
+import_map = "import_map.json"
+
+
+[functions.scrape-tipcars]
+import_map = "import_map.json"
+
+[functions.call-gemini-universal-ranker]
+import_map = "import_map.json"
+
+
+[functions.analyze-tipcars-v1]
+import_map = "import_map.json"
+
+[functions.analyze-tipcars-direct]
+import_map = "import_map.json"
+
+
+[functions.call-gemini-quick-filter]
+import_map = "import_map.json"
+
+[functions.call-tipcars-strategist]
+import_map = "import_map.json"
+

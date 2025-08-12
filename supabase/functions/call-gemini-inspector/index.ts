@@ -87,7 +87,7 @@ serve(async (req) => {
 
         let image_urls = [];
         if (originalAd.images && originalAd.images.length > 0) {
-            image_urls = originalAd.images.slice(0, 3).map(img =>
+            image_urls = originalAd.images.slice(0, 8).map(img =>
                 `https:${img.url}?fl=exf|crr,1.33333,0|res,1024,768,1|wrm,/watermark/sauto.png,10,10|jpg,80,,1`
             );
         }

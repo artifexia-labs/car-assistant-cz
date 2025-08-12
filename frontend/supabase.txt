@@ -1,0 +1,81 @@
+-- Vytvoří funkci, která se spustí při registraci nového uživatele
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+begin
+  insert into public.profiles (id, email)
+  values (new.id, new.email);
+  return new;
+end;
+$$;
+
+-- Vytvoří samotný trigger, který funkci zavolá
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+  
+  -- KROK 1: Zapneme Row Level Security na tabulce 'profiles'
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- KROK 2: Vytvoříme pravidlo (Policy) pro čtení
+CREATE POLICY "Uživatelé si mohou číst pouze svůj vlastní profil."
+ON public.profiles
+FOR SELECT -- Tato politika platí pouze pro operaci ČTENÍ (SELECT)
+USING (auth.uid() = id); -- Pravidlo: Povolit, pokud se ID přihlášeného uživatele (auth.uid()) rovná ID v řádku tabulky.
+
+-- KROK 3: Povolíme, aby se data četla i anonymním klíčem (ale politika to ohlídá)
+GRANT SELECT ON TABLE public.profiles TO anon;
+
+-- KROK 1: Smažeme VŠECHNY existující politiky na tabulce 'profiles', abychom předešli konfliktům.
+DROP POLICY IF EXISTS "Uživatelé si mohou číst pouze svůj vlastní profil." ON public.profiles;
+-- Můžeš sem přidat další DROP POLICY příkazy, pokud jsi zkoušel vytvářet i jiné.
+
+-- KROK 2: Ujistíme se, že je Row Level Security zapnutá.
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- KROK 3: Vytvoříme finální, správnou politiku pro čtení.
+CREATE POLICY "Uživatelé si mohou číst pouze svůj vlastní profil."
+ON public.profiles
+FOR SELECT -- Pravidlo platí POUZE pro čtení (když se načítají kredity)
+USING (auth.uid() = id); -- Povolit, jen pokud se ID přihlášeného uživatele shoduje s ID v řádku.
+
+-- Создаем таблицу для хранения задач поиска
+CREATE TABLE search_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id), -- Ссылка на пользователя
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  status TEXT DEFAULT 'pending', -- Статусы: pending, scraping, ranking, completed, error
+  user_query TEXT,
+  raw_results JSONB, -- Сюда скрапер положит сырой JSON
+  final_results JSONB, -- Сюда ранжировщик положит финальный топ-20
+  error_message TEXT
+);
+
+-- Включаем Realtime (чтобы фронтенд мог получать обновления)
+ALTER PUBLICATION supabase_realtime ADD TABLE search_jobs;
+
+-- Включаем защиту на уровне строк
+ALTER TABLE search_jobs ENABLE ROW LEVEL SECURITY;
+
+-- Политика: Пользователи могут видеть только свои собственные задания
+CREATE POLICY "Users can view their own search jobs"
+ON public.search_jobs FOR SELECT
+USING (auth.uid() = user_id);
+
+-- Политика: Пользователи могут создавать задания для самих себя
+CREATE POLICY "Users can create their own search jobs"
+ON public.search_jobs FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+
+-- Удаляем старую политику, если она существует
+DROP POLICY IF EXISTS "Users can view their own search jobs" ON public.search_jobs;
+DROP POLICY IF EXISTS "Users can create their own search jobs" ON public.search_jobs;
+
+-- Создаем временную, простую политику для разработки
+CREATE POLICY "Enable access for all users during development"
+ON public.search_jobs
+FOR ALL -- Разрешаем все действия: SELECT, INSERT, UPDATE, DELETE
+USING (true)
+WITH CHECK (true);

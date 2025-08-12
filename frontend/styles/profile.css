@@ -1,0 +1,117 @@
+/* /styles/profile.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #007aff;
+    --primary-dark: #005ecb;
+    --card-background: #ffffff;
+    --text-color: #1d1d1f;
+    --subtle-text: #6e6e73;
+    --border-color: #dcdce0;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --border-radius-lg: 24px;
+    --border-radius-md: 16px;
+}
+
+/* --- Základní layout pro celou stránku (Oprava Footeru) --- */
+html, body {
+    height: 100%;
+    margin: 0;
+}
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    background: var(--background-color);
+}
+.profile-wrapper {
+    flex-grow: 1; /* Toto zajistí, že obsah odtlačí footer dolů */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+}
+
+/* --- Styly pro Kartu Profilu --- */
+.profile-card {
+    background-color: var(--card-background);
+    padding: 30px 35px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.profile-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.profile-section {
+    text-align: left;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-lg);
+    padding: 25px;
+}
+.profile-section h3 {
+    margin-top: 0;
+    font-size: 1.3rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+.info-item {
+    font-size: 1rem;
+    color: var(--subtle-text);
+}
+.info-item strong {
+    display: block;
+    color: var(--text-color);
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Styly pro propojování účtů */
+.linked-accounts-list { list-style: none; padding: 0; margin: 0; }
+.linked-account-item { display: flex; align-items: center; justify-content: space-between; padding: 15px; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); margin-bottom: 10px; }
+.linked-account-info { display: flex; align-items: center; gap: 15px; font-weight: 600; }
+.provider-icon { width: 24px; height: 24px; vertical-align: middle; margin-right: 8px; }
+.button-link, .button-unlink { background: none; border: 1px solid; padding: 8px 16px; border-radius: var(--border-radius-md); cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease; }
+.button-link { color: var(--primary-color); border-color: var(--primary-color); }
+.button-link:hover { background-color: var(--primary-color); color: #fff; }
+.button-unlink { color: #ff3b30; border-color: #ff3b30; }
+.button-unlink:hover { background-color: #ff3b30; color: #fff; }
+
+/* Danger Zone */
+.danger-zone {
+    margin-top: 20px;
+    border: 2px solid #ff3b30;
+    background-color: #fff5f5;
+    padding: 25px;
+    border-radius: var(--border-radius-lg);
+}
+.danger-zone h3 { color: #ff3b30; border-bottom: none; }
+.danger-zone p { font-size: 0.9rem; color: var(--subtle-text); }
+.button-danger { background-color: #ff3b30 !important; }
+.button-danger:hover { background-color: #c7001e !important; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3) !important; }
+
+/* Tlačítka a zprávy */
+.auth-button { width: 100%; padding: 16px; font-size: 1rem; font-weight: 700; background: var(--primary-color); color: white; border: none; border-radius: var(--border-radius-md); cursor: pointer; transition: all 0.2s ease; }
+.auth-button:hover { background: var(--primary-dark); }
+#auth-messages { margin-top: 20px; font-size: 0.9rem; font-weight: 600; min-height: 20px; text-align: center; }
+#auth-messages.error { color: #ff3b30; }
+#auth-messages.success { color: #34c759; }

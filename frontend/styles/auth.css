@@ -1,0 +1,274 @@
+/* /styles/auth.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #007aff;
+    --primary-dark: #005ecb;
+    --card-background: #ffffff;
+    --text-color: #1d1d1f;
+    --subtle-text: #6e6e73;
+    --border-color: #dcdce0;
+    --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    --border-radius-lg: 24px;
+    --border-radius-md: 16px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    margin: 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-card {
+    background-color: var(--card-background);
+    padding: 40px 35px;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.auth-logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 25px;
+}
+
+.auth-card h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+}
+
+.auth-card .form-description {
+    color: var(--subtle-text);
+    margin-bottom: 30px;
+    font-size: 0.95rem;
+}
+
+.input-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-wrapper .input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--subtle-text);
+    pointer-events: none;
+}
+
+.input-wrapper input {
+    width: 100%;
+    padding: 15px 15px 15px 45px; /* Vytvoří místo pro ikonku */
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    box-sizing: border-box;
+    background-color: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.input-wrapper input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.15);
+    background-color: #fff;
+}
+
+.auth-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 0.85rem;
+}
+
+.auth-options a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+.auth-options a:hover {
+    text-decoration: underline;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: 700;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.auth-button:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+}
+
+.auth-divider {
+    margin: 30px 0;
+    font-size: 0.9rem;
+    color: var(--subtle-text);
+    position: relative;
+    text-align: center;
+}
+.auth-divider span {
+    background-color: #fff;
+    padding: 0 10px;
+    position: relative;
+    z-index: 1;
+}
+.auth-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: var(--border-color);
+    z-index: 0;
+}
+
+.social-auth-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.social-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-color);
+    background-color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.social-button:hover {
+    border-color: #a0a0a0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.social-button img {
+    width: 24px;
+    height: 24px;
+}
+
+.auth-switch {
+    font-size: 0.95rem;
+    color: var(--subtle-text);
+}
+.auth-switch a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+#auth-messages {
+    margin-top: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    min-height: 20px;
+    transition: all 0.3s ease;
+}
+#auth-messages.error { color: #ff3b30; }
+#auth-messages.success { color: #34c759; }
+
+/* Skrývání a zobrazování formulářů */
+.hidden-form { display: none; }
+/* /styles/auth.css - PŘIDAT NA KONEC SOUBORU */
+
+.account-linking-section {
+    text-align: left;
+}
+
+.linked-accounts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.linked-account-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-md);
+    margin-bottom: 10px;
+}
+
+.linked-account-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-weight: 600;
+}
+
+.provider-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.button-link, .button-unlink {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.button-link {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.button-link:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+.button-unlink {
+    color: #ff3b30;
+    border-color: #ff3b30;
+}
+.button-unlink:hover {
+    background-color: #ff3b30;
+    color: #fff;
+}

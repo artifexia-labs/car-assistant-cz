@@ -347,7 +347,58 @@ textarea:focus, input[type="url"]:focus { outline: none; border-color: var(--pri
         grid-template-columns: 1fr; /* Jeden sloupec na mobilu */
     }
 }
-
+/* --- Styly pro nové detailní zobrazení --- */
+.detailed-info-section {
+    padding: 25px;
+    background-color: #f8f9fa;
+    border-top: 1px solid var(--border-color);
+}
+.car-description p {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--subtle-text);
+    margin-bottom: 25px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid var(--border-color);
+}
+.details-columns {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+}
+.column h4 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.details-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+.equipment-grid {
+    column-count: 2;
+    column-gap: 20px;
+}
+.equipment-category {
+    break-inside: avoid;
+    margin-bottom: 20px;
+}
+.equipment-category ul {
+    list-style: '✓ ';
+    padding-left: 20px;
+}
+@media (max-width: 768px) {
+    .details-columns, .equipment-grid {
+        grid-template-columns: 1fr;
+        column-count: 1;
+    }
+}
 /* --- Responzivní design --- */
 @media (max-width: 768px) {
     body { padding: 10px; }

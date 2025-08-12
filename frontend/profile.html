@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Můj profil - proklepniauto.cz</title>
+    
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-WV8CQL4G');</script>
+    
+    <meta name="google-adsense-account" content="ca-pub-9584665542135701">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="./styles/index.css"> <link rel="stylesheet" href="./styles/profile.css"> </head>
+<body>
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WV8CQL4G"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+    <div class="profile-wrapper">
+        <div class="profile-card">
+            <a href="/" class="profile-logo">🚗 Můj profil</a>
+            
+            <div class="profile-section">
+                <h3>Informace o účtu</h3>
+                <div class="profile-info-grid">
+                    <div class="info-item">
+                        <strong>Email</strong>
+                        <span id="user-email">Načítám...</span>
+                    </div>
+                     <div class="info-item">
+                        <strong>Zbývající kredity</strong>
+                        <span id="user-credits">Načítám...</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Datum registrace</strong>
+                        <span id="user-created-at">Načítám...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h3>Propojené účty</h3>
+                <ul class="linked-accounts-list" id="linked-accounts-list">
+                    </ul>
+            </div>
+
+            <button id="logout-button" class="auth-button">Odhlásit se</button>
+
+            <div class="danger-zone">
+                <h3>Nebezpečná zóna</h3>
+                <p>Smazáním účtu přijdete o všechna svá data, včetně zbývajících kreditů. Tato akce je nevratná.</p>
+                <button id="delete-account-button" class="auth-button button-danger">Trvale smazat účet</button>
+            </div>
+             <div id="auth-messages"></div>
+        </div>
+    </div>
+    
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-about">
+                <h4>🚗 proklepniauto.cz</h4>
+                <p>Přinášíme transparentnost na trh s ojetými vozy pomocí umělé inteligence. Analyzujeme inzeráty, abyste vy mohli dělat lepší rozhodnutí.</p>
+                <div class="social-links">
+                    <a href="https://t.me/artifexialabs" target="_blank" class="social-icon telegram" aria-label="Telegram"></a>
+                    <a href="https://www.facebook.com/people/Proklepniautocz/61578936179244/" target="_blank" class="social-icon facebook" aria-label="Facebook"></a>
+                </div>
+            </div>
+            <div class="footer-links-section">
+                <h4>Navigace</h4>
+                <ul>
+                    <li><a href="/" class="footer-link">Hlavní stránka</a></li>
+                    <li><a href="/about.html" class="footer-link">O nás</a></li>
+                    <li><a href="/legal.html" class="footer-link">Právní ujednání</a></li>
+                </ul>
+            </div>
+            <div class="footer-links-section">
+                <h4>Kontakt</h4>
+                <ul>
+                    <li><a href="mailto:info@proklepniauto.cz" class="footer-link">Obecné dotazy</a></li>
+                    <li><a href="mailto:support@proklepniauto.cz" class="footer-link">Podpora</a></li>
+                    <li><a href="mailto:media@proklepniauto.cz" class="footer-link">Média a tisk</a></li>
+                    <li><a href="mailto:obchod@proklepniauto.cz" class="footer-link">Spolupráce</a></li>
+                    <li><a href="mailto:fakturace@proklepniauto.cz" class="footer-link">Fakturace</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom-bar">
+            <p>&copy; 2025 Artifexia Labs. Všechna práva vyhrazena.</p>
+        </div>
+    </footer>
+
+    <script src="./js/profile.js"></script>
+</body>
+</html>
